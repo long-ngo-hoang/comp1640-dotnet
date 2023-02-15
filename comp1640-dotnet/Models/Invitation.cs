@@ -15,8 +15,8 @@ namespace comp1640_dotnet.Models
 		public string? InvitedUserId { get; set; }
 		public ApplicationUser? InvitedUser { get; set; }
 
-		public DateTime CreatedAt { get; }	
-		public DateTime UpdatedAt { get; }
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 		public bool IsAccepted { get; set; }
 	}
 }

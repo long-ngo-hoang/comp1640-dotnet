@@ -14,8 +14,8 @@ namespace comp1640_dotnet.Models
 		public Guid IdeaId { get; set; }
 		public Idea? Idea { get; set; }
 
-		public DateTime CreatedAt { get; }
-		public DateTime UpdatedAt { get; }
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		public string? DocumentUrl { get; set; }
 	}

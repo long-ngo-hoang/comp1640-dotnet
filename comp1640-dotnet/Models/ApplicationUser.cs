@@ -11,8 +11,8 @@ namespace comp1640_dotnet.Models
 		public Guid DepartmentId { get; set; }
 		public Department? Department { get; set; }
 			
-		public DateTime CreatedAt { get; set; }
-		public DateTime UpdatedAt { get; set; }
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		public string? Address { get; set; }
 		public string? AvatarUrl { get; set; }

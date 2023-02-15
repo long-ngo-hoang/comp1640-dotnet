@@ -24,8 +24,8 @@ namespace comp1640_dotnet.Models
 		public Guid CategoryId { get; set; }
 		public Category? Category { get; set; }
 
-		public DateTime CreatedAt { get; }
-		public DateTime UpdatedAt { get; }
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		public string? Name { get; set; }
 		public bool IsAnonymous { get; set; }
