@@ -9,6 +9,8 @@ namespace comp1640_dotnet.Data
 				: base(options)
 		{
 		}
+		public DbSet<User>? Users { get; set; }
+		public DbSet<Profile>? Profiles { get; set; }
 		public DbSet<Department>? Departments { get; set; }
 		public DbSet<AcademicYear>? AcademicYears { get; set; }
 		public DbSet<Category>? Categories { get; set; }
@@ -16,6 +18,5 @@ namespace comp1640_dotnet.Data
 		public DbSet<Reaction>? Reactions { get; set; }
 		public DbSet<Comment>? Comments { get; set; }
 		public DbSet<Document>? Documents { get; set; }
-		public DbSet<Invitation>? Invations { get; set; }
 	}
 }

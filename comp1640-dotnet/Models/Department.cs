@@ -7,7 +7,7 @@ namespace comp1640_dotnet.Models
 	public class Department
 	{
 		[Key]
-		public Guid Id { get; set; } = Guid.NewGuid();
+		public string Id { get; set; } = Guid.NewGuid().ToString();
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -15,6 +15,6 @@ namespace comp1640_dotnet.Models
 		public string? Name { get; set; }
 
 		//relation
-		public List<ApplicationUser>? Users { get; set; }
+		public List<User>? Users { get; set; }
 	}
 }
