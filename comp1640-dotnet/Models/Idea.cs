@@ -8,26 +8,26 @@ namespace comp1640_dotnet.Models
 	public class Idea
 	{
 		[Key]
-		public Guid Id { get; set; } = Guid.NewGuid();
+		public string Id { get; set; } = Guid.NewGuid().ToString();
 
+		//relations
 		[ForeignKey("AcademicYear")]
-		public Guid AcademicYearId { get; set; }
+		public string? AcademicYearId { get; set; }
 		public AcademicYear? AcademicYear { get; set; }
-		
-		[ForeignKey("ApplicationUser")]
+
+		[ForeignKey("User")]
 		public string? UserId { get; set; }
-		public ApplicationUser? User { get; set; }
-
-
+		public User? User { get; set; }
 
 		[ForeignKey("Category")]
-		public Guid CategoryId { get; set; }
+		public string? CategoryId { get; set; }
 		public Category? Category { get; set; }
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		public string? Name { get; set; }
+		public string? Description { get; set; }
 		public bool IsAnonymous { get; set; }
 
 		//relations

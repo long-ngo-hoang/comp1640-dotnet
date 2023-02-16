@@ -1,10 +1,9 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace comp1640_dotnet.Models
 {
-	public class Comment
+	public class Profile
 	{
 		[Key]
 		public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -14,16 +13,16 @@ namespace comp1640_dotnet.Models
 		public string? UserId { get; set; }
 		public User? User { get; set; }
 
-		[ForeignKey("Idea")]
-		public string? IdeaId { get; set; }
-		public Idea? Idea { get; set; }
-
-		public DateTime CreatedAt { get; set;	} = DateTime.UtcNow;
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-		public string? Content { get; set; }
-		public bool IsAnonymous { get; set; }	
-		
+		public string? AvatarUrl { get; set; }
+		public string? FullName { get; set; }
+		public string? Address { get; set; }
+		public string? Phone { get; set; }
+
+
+
 
 	}
 }

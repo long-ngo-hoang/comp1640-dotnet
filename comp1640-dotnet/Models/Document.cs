@@ -8,15 +8,18 @@ namespace comp1640_dotnet.Models
 	public class Document
 	{
 		[Key]
-		public Guid Id { get; set; } = Guid.NewGuid();
+		public string Id { get; set; } = Guid.NewGuid().ToString();
 
+		//relations
 		[ForeignKey("Idea")]
-		public Guid IdeaId { get; set; }
+		public string? IdeaId { get; set; }
 		public Idea? Idea { get; set; }
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		public string? DocumentUrl { get; set; }
+		
+
 	}
 }

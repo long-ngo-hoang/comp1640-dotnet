@@ -24,9 +24,8 @@ namespace comp1640_dotnet.Migrations
 
             modelBuilder.Entity("comp1640_dotnet.Models.AcademicYear", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("ClosureDate")
                         .HasColumnType("datetime2");
@@ -51,80 +50,10 @@ namespace comp1640_dotnet.Migrations
                     b.ToTable("AcademicYears");
                 });
 
-            modelBuilder.Entity("comp1640_dotnet.Models.ApplicationUser", b =>
+            modelBuilder.Entity("comp1640_dotnet.Models.Category", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AvatarUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.ToTable("ApplicationUser");
-                });
-
-            modelBuilder.Entity("comp1640_dotnet.Models.Category", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -142,18 +71,23 @@ namespace comp1640_dotnet.Migrations
 
             modelBuilder.Entity("comp1640_dotnet.Models.Comment", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("IdeaId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IdeaId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -169,9 +103,8 @@ namespace comp1640_dotnet.Migrations
 
             modelBuilder.Entity("comp1640_dotnet.Models.Department", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -189,9 +122,8 @@ namespace comp1640_dotnet.Migrations
 
             modelBuilder.Entity("comp1640_dotnet.Models.Document", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -199,8 +131,8 @@ namespace comp1640_dotnet.Migrations
                     b.Property<string>("DocumentUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("IdeaId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("IdeaId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -214,18 +146,20 @@ namespace comp1640_dotnet.Migrations
 
             modelBuilder.Entity("comp1640_dotnet.Models.Idea", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid>("AcademicYearId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("AcademicYearId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CategoryId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
@@ -250,20 +184,25 @@ namespace comp1640_dotnet.Migrations
                     b.ToTable("Ideas");
                 });
 
-            modelBuilder.Entity("comp1640_dotnet.Models.Invitation", b =>
+            modelBuilder.Entity("comp1640_dotnet.Models.Profile", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("InvitedUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsAccepted")
-                        .HasColumnType("bit");
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -273,24 +212,23 @@ namespace comp1640_dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InvitedUserId");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Invations");
+                    b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("comp1640_dotnet.Models.Reaction", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("IdeaId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("IdeaId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -310,26 +248,43 @@ namespace comp1640_dotnet.Migrations
                     b.ToTable("Reactions");
                 });
 
-            modelBuilder.Entity("comp1640_dotnet.Models.ApplicationUser", b =>
+            modelBuilder.Entity("comp1640_dotnet.Models.User", b =>
                 {
-                    b.HasOne("comp1640_dotnet.Models.Department", "Department")
-                        .WithMany("Users")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Navigation("Department");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DepartmentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Password")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("comp1640_dotnet.Models.Comment", b =>
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Comments")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
-                    b.HasOne("comp1640_dotnet.Models.ApplicationUser", "User")
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId");
 
@@ -342,9 +297,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Documents")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
                     b.Navigation("Idea");
                 });
@@ -353,17 +306,13 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.AcademicYear", "AcademicYear")
                         .WithMany("Ideas")
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AcademicYearId");
 
                     b.HasOne("comp1640_dotnet.Models.Category", "Category")
                         .WithMany("Ideas")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
 
-                    b.HasOne("comp1640_dotnet.Models.ApplicationUser", "User")
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Ideas")
                         .HasForeignKey("UserId");
 
@@ -374,17 +323,11 @@ namespace comp1640_dotnet.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("comp1640_dotnet.Models.Invitation", b =>
+            modelBuilder.Entity("comp1640_dotnet.Models.Profile", b =>
                 {
-                    b.HasOne("comp1640_dotnet.Models.ApplicationUser", "InvitedUser")
-                        .WithMany()
-                        .HasForeignKey("InvitedUserId");
-
-                    b.HasOne("comp1640_dotnet.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("InvitedUser");
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("comp1640_dotnet.Models.Profile", "UserId");
 
                     b.Navigation("User");
                 });
@@ -393,11 +336,9 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Reactions")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
-                    b.HasOne("comp1640_dotnet.Models.ApplicationUser", "User")
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Reactions")
                         .HasForeignKey("UserId");
 
@@ -406,18 +347,18 @@ namespace comp1640_dotnet.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("comp1640_dotnet.Models.User", b =>
+                {
+                    b.HasOne("comp1640_dotnet.Models.Department", "Department")
+                        .WithMany("Users")
+                        .HasForeignKey("DepartmentId");
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("comp1640_dotnet.Models.AcademicYear", b =>
                 {
                     b.Navigation("Ideas");
-                });
-
-            modelBuilder.Entity("comp1640_dotnet.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("Ideas");
-
-                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("comp1640_dotnet.Models.Category", b =>
@@ -435,6 +376,17 @@ namespace comp1640_dotnet.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Documents");
+
+                    b.Navigation("Reactions");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.User", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Ideas");
+
+                    b.Navigation("Profile");
 
                     b.Navigation("Reactions");
                 });

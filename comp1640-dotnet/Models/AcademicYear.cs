@@ -7,7 +7,7 @@ namespace comp1640_dotnet.Models
 	public class AcademicYear
 	{
 		[Key]
-		public Guid Id { get; set; } = Guid.NewGuid();
+		public string Id { get; set; } = Guid.NewGuid().ToString();
 
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
