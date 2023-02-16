@@ -10,9 +10,11 @@ namespace comp1640_dotnet.Models
 	{
 		[Key]
 		public string Id { get; set;} = Guid.NewGuid().ToString();
-		
+
 		//relations
+		public RefreshToken? RefreshToken { get; set; }
 		public Profile? Profile { get; set; }
+
 		[ForeignKey("Department")]
 		public string DepartmentId { get; set; }
 		public Department? Department { get; set; }

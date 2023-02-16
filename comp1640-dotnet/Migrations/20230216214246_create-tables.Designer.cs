@@ -12,7 +12,7 @@ using comp1640_dotnet.Data;
 namespace comp1640_dotnet.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230216190815_create-tables")]
+    [Migration("20230216214246_create-tables")]
     partial class createtables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

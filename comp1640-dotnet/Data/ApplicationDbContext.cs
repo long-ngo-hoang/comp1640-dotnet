@@ -18,5 +18,7 @@ namespace comp1640_dotnet.Data
 		public DbSet<Reaction>? Reactions { get; set; }
 		public DbSet<Comment>? Comments { get; set; }
 		public DbSet<Document>? Documents { get; set; }
+		public DbSet<RefreshToken>? RefreshTokens { get; set; }
+
 	}
 }
