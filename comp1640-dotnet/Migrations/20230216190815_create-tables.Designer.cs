@@ -12,7 +12,7 @@ using comp1640_dotnet.Data;
 namespace comp1640_dotnet.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230216011018_create-tables")]
+    [Migration("20230216190815_create-tables")]
     partial class createtables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,7 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
@@ -61,6 +62,7 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -77,12 +79,14 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdeaId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsAnonymous")
@@ -112,6 +116,7 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -131,9 +136,11 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DocumentUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IdeaId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -152,27 +159,32 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AcademicYearId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CategoryId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -210,13 +222,13 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Profiles");
                 });
@@ -230,9 +242,11 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdeaId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -259,18 +273,26 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DepartmentId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("Password")
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -284,7 +306,9 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Comments")
-                        .HasForeignKey("IdeaId");
+                        .HasForeignKey("IdeaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Comments")
@@ -299,7 +323,9 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Documents")
-                        .HasForeignKey("IdeaId");
+                        .HasForeignKey("IdeaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Idea");
                 });
@@ -308,15 +334,21 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.AcademicYear", "AcademicYear")
                         .WithMany("Ideas")
-                        .HasForeignKey("AcademicYearId");
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("comp1640_dotnet.Models.Category", "Category")
                         .WithMany("Ideas")
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Ideas")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AcademicYear");
 
@@ -329,7 +361,9 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithOne("Profile")
-                        .HasForeignKey("comp1640_dotnet.Models.Profile", "UserId");
+                        .HasForeignKey("comp1640_dotnet.Models.Profile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -338,7 +372,9 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Reactions")
-                        .HasForeignKey("IdeaId");
+                        .HasForeignKey("IdeaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Reactions")
@@ -353,7 +389,9 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Department", "Department")
                         .WithMany("Users")
-                        .HasForeignKey("DepartmentId");
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Department");
                 });

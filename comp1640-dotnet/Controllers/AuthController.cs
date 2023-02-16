@@ -20,21 +20,30 @@ namespace comp1640_dotnet.Controllers
 		public static User user = new User();
 
 		[HttpPost("Register")]
-		public async Task<ActionResult<User>> Register(UserRequest userRequest)
+		public async Task<ActionResult<User>> Register(UserRegisterRequest userRegisterRequest)
 		{
-			user.UserName = userRequest.Email;
-			user.Email = userRequest.Email;
-			user.DepartmentId = userRequest.DepartmentId;	
-			user.Password =  PasswordHash(userRequest.Password);
+			var hmac = new HMACSHA512();
+
+			user.UserName = userRegisterRequest.Email;
+			user.Email = userRegisterRequest.Email;
+			user.DepartmentId = userRegisterRequest.DepartmentId;
+
+			user.PasswordSalt = PasswordSalt(hmac);
+			user.PasswordHash = PasswordHash(userRegisterRequest.Password, hmac);
+
 			var result = dbContext.Users.Add(user);
 			await dbContext.SaveChangesAsync();
 
 			return Ok(user);
 		}
 
-		private static byte[] PasswordHash(string password)
+		private static byte[] PasswordSalt(HMACSHA512 hmac)
 		{
-			var hmac = new HMACSHA512();
+			return hmac.Key;
+		}
+
+		private static byte[] PasswordHash(string password, HMACSHA512 hmac)
+		{
 			return hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
 		}
 	}
