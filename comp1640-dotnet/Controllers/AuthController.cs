@@ -46,5 +46,27 @@ namespace comp1640_dotnet.Controllers
 		{
 			return hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
 		}
+
+		[HttpPost("Login")]
+		public async Task<ActionResult<User>> Login(UserLoginRequest userLoginRequest)
+		{
+			var user = dbContext.Users.FirstOrDefault(u => u.Email == userLoginRequest.Email);
+			if (user == null)
+			{
+				return BadRequest("Account Not Found.");
+			}
+			if (!VerifyPassword(userLoginRequest.Password, user.PasswordHash, user.PasswordSalt))
+			{
+				return BadRequest("Wrong Password");
+			}
+			return Ok("Logged in successfully");
+		}
+
+		private static bool VerifyPassword(string password, byte[] passwordHash, byte[] passwordSalt)
+		{
+			var hmac = new HMACSHA512(passwordSalt);
+			var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+			return computedHash.SequenceEqual(passwordHash);
+		}
 	}
 }
