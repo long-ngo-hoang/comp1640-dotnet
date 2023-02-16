@@ -2,7 +2,7 @@
 
 namespace comp1640_dotnet.DTOs.Requests
 {
-	public class UserRequest
+	public class UserRegisterRequest
 	{
 		[Required]
 		[DataType(DataType.EmailAddress)]
