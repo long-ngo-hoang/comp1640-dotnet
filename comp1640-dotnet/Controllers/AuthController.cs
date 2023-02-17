@@ -116,9 +116,9 @@ namespace comp1640_dotnet.Controllers
 		{
 			List<Claim> claims = new List<Claim>
 			{
-				new Claim(ClaimTypes.UserData, user.DepartmentId),
+				//new Claim(ClaimTypes.UserData, user.DepartmentId),
 				new Claim(ClaimTypes.Name, user.UserName),
-				new Claim(ClaimTypes.Email, user.Email),
+				//new Claim(ClaimTypes.Email, user.Email),
 
 			};
 
@@ -129,7 +129,7 @@ namespace comp1640_dotnet.Controllers
 
 			var token = new JwtSecurityToken(
 				claims: claims,
-				expires: DateTime.Now.AddHours(1),
+				expires: DateTime.Now.AddDays(1),
 				signingCredentials: cred);
 
 			var jwt = new JwtSecurityTokenHandler().WriteToken(token);
@@ -161,8 +161,8 @@ namespace comp1640_dotnet.Controllers
 			{
 				return Unauthorized("Token expired");
 			}
-
-			string token = CreateToken(refreshTokenInDb.User);
+			var user = refreshTokenInDb.User;
+			string token = CreateToken(user);
 			var newRefreshToken = GenerateRefreshToken();
 
 			refreshTokenInDb.Token = newRefreshToken.Token;
