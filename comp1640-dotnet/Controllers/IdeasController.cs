@@ -27,14 +27,14 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Idea>> GetIdeas(string id)
+		public async Task<ActionResult<Idea>> GetIdea(string id)
 		{
 			var result = await ideaRepos.GetIdea(id);
 			if(result == null)
 			{
 				return BadRequest("Idea not found");
 			}
-			return Ok("Create successful idea");
+			return Ok(result);
 		}
 
 		[HttpPost]
