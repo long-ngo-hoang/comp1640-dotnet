@@ -1,5 +1,6 @@
 ﻿using comp1640_dotnet.Data;
 using comp1640_dotnet.Models;
+using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,40 +12,18 @@ namespace comp1640_dotnet.Controllers
 	[ApiController]
 	public class IdeasController : ControllerBase
 	{
-		private readonly ApplicationDbContext? dbContext;
-		public IdeasController(ApplicationDbContext? dbContext)
+		private readonly IIdeaRepository ideaRepos;
+
+		public IdeasController(IIdeaRepository _ideaRepos)
 		{
-			this.dbContext = dbContext;
+			this.ideaRepos = _ideaRepos;
 		}
 
-		[HttpGet, Authorize]
+		[HttpGet]
 		public async Task<ActionResult<IEnumerable<Idea>>> GetIdeas()
 		{
-			return await dbContext.Ideas.ToListAsync();
+			var result = await ideaRepos.GetIdeas();
+			return Ok(result);
 		}
-
-		//[HttpPost]
-		//public async Task<ActionResult<Idea>> CreateIdea(Idea idea)
-		//{
-		//	dbContext.Ideas.Add(idea);
-		//	await dbContext.SaveChangesAsync();
-
-		//	return Ok("Created a successful idea");
-		//}
-
-		//[HttpPut("id")]
-		//public async Task<ActionResult<Idea>> CreateIdea(Guid id, Idea idea)
-		//{
-		//	if (id != idea.Id)
-		//	{
-		//		return BadRequest();
-		//	}
-		//	dbContext.Ideas.Update(idea);
-
-		//	await dbContext.SaveChangesAsync();
-
-		//	return Ok("Updated a successful idea");
-		//}
-
 	}
 }
