@@ -31,5 +31,18 @@ namespace comp1640_dotnet.Repositories
 		{
 			return await dbContext.Ideas.ToListAsync();
 		}
+
+		public async Task<Idea> RemoveIdea(string idIdea)
+		{
+			var result = await dbContext.Ideas
+							 .SingleOrDefaultAsync(e => e.Id == idIdea);
+
+			if (result != null)
+			{
+				dbContext.Ideas.Remove(result);
+				await dbContext.SaveChangesAsync();
+			}
+			return result;
+		}
 	}
 }
