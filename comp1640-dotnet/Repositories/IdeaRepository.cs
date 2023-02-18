@@ -2,6 +2,7 @@
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace comp1640_dotnet.Repositories
 {
@@ -12,6 +13,13 @@ namespace comp1640_dotnet.Repositories
 		public IdeaRepository(ApplicationDbContext context)
 		{
 			dbContext = context;
+		}
+
+		public async Task<Idea> CreateIdea(Idea idea)
+{
+			var result = await dbContext.Ideas.AddAsync(idea);
+			await dbContext.SaveChangesAsync();
+			return result.Entity;
 		}
 
 		public async Task<Idea> GetIdea(string idIdea)
