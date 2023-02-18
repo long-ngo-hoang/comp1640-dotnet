@@ -36,5 +36,12 @@ namespace comp1640_dotnet.Controllers
 			}
 			return Ok(result);
 		}
+
+		[HttpPost]
+		public async Task<ActionResult<Idea>> CreateIdea(Idea idea)
+		{
+			var result = await ideaRepos.CreateIdea(idea);
+			return Ok(result);
+		}
 	}
 }

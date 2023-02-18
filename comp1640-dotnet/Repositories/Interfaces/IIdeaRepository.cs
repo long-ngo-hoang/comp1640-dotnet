@@ -6,5 +6,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 	{
 		Task<IEnumerable<Idea>> GetIdeas();
 		Task<Idea> GetIdea(string idIdea);
+		Task<Idea> CreateIdea(Idea idea);
+
 	}
 }
