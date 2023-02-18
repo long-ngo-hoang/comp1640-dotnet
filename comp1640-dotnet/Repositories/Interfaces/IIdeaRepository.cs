@@ -8,5 +8,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<Idea> GetIdea(string idIdea);
 		Task<Idea> CreateIdea(Idea idea);
 		Task<Idea> RemoveIdea (string idIdea);
+		Task<Idea> UpdateIdea(string idIdea, Idea idea);
+
 	}
 }
