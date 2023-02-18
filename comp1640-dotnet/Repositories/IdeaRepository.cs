@@ -44,5 +44,20 @@ namespace comp1640_dotnet.Repositories
 			}
 			return result;
 		}
+
+		public async Task<Idea> UpdateIdea(string idIdea, Idea idea)
+		{
+			var ideaInDb = await dbContext.Ideas
+							 .SingleOrDefaultAsync(e => e.Id == idIdea);
+
+			if (ideaInDb != null)
+			{
+				ideaInDb.Name = idea.Name;
+				ideaInDb.Description = idea.Description;
+				ideaInDb.IsAnonymous = idea.IsAnonymous;
+				await dbContext.SaveChangesAsync();
+			}
+			return ideaInDb;
+		}
 	}
 }

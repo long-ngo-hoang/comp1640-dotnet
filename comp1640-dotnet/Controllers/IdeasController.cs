@@ -54,5 +54,16 @@ namespace comp1640_dotnet.Controllers
 			}
 			return Ok("Delete successful idea");
 		}
+
+		[HttpPut("{id}")]
+		public async Task<ActionResult<Idea>> UpdateIdea(string id, Idea idea)
+		{
+			var result = await ideaRepos.UpdateIdea(id, idea);
+			if (result == null)
+			{
+				return BadRequest("Idea not found");
+			}
+			return Ok("Update successful idea");
+		}
 	}
 }
