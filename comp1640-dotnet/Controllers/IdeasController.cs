@@ -34,7 +34,7 @@ namespace comp1640_dotnet.Controllers
 			{
 				return BadRequest("Idea not found");
 			}
-			return Ok(result);
+			return Ok("Create successful idea");
 		}
 
 		[HttpPost]
@@ -42,6 +42,17 @@ namespace comp1640_dotnet.Controllers
 		{
 			var result = await ideaRepos.CreateIdea(idea);
 			return Ok(result);
+		}
+
+		[HttpDelete("{id}")]
+		public async Task<ActionResult<Idea>> RemoveIdea(string id)
+		{
+			var result = await ideaRepos.RemoveIdea(id);
+			if(result == null)
+			{
+				return BadRequest("Idea not found");
+			}
+			return Ok("Delete successful idea");
 		}
 	}
 }
