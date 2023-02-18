@@ -14,6 +14,11 @@ namespace comp1640_dotnet.Repositories
 			dbContext = context;
 		}
 
+		public async Task<Idea> GetIdea(string idIdea)
+		{
+			return dbContext.Ideas.SingleOrDefault(i => i.Id == idIdea);
+		}
+
 		public async Task<IEnumerable<Idea>> GetIdeas()
 		{
 			return await dbContext.Ideas.ToListAsync();

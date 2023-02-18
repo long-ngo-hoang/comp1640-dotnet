@@ -25,5 +25,16 @@ namespace comp1640_dotnet.Controllers
 			var result = await ideaRepos.GetIdeas();
 			return Ok(result);
 		}
+
+		[HttpGet("{id}")]
+		public async Task<ActionResult<Idea>> GetIdeas(string id)
+		{
+			var result = await ideaRepos.GetIdea(id);
+			if(result == null)
+			{
+				return BadRequest("Idea not found");
+			}
+			return Ok(result);
+		}
 	}
 }
