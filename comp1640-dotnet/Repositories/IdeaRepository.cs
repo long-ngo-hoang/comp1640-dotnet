@@ -11,6 +11,7 @@ using Amazon;
 using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
 using Amazon.Runtime;
 using comp1640_dotnet.DTOs.Responses;
+using comp1640_dotnet.DTOs.Requests;
 
 namespace comp1640_dotnet.Repositories
 {
@@ -27,21 +28,70 @@ namespace comp1640_dotnet.Repositories
 
 		}
 
-		public async Task<Idea> CreateIdea(Idea idea)
+		public async Task<IdeaResponse> CreateIdea(IdeaRequest idea)
 		{
-			var result = await dbContext.Ideas.AddAsync(idea);
+			Idea ideaToCreate = new()
+			{
+				AcademicYearId = idea.AcademicYearId,
+				UserId = idea.UserId,
+				CategoryId = idea.CategoryId,
+				Name = idea.Name,
+				Description = idea.Description,
+				IsAnonymous = idea.IsAnonymous
+			};
+
+			var result = await dbContext.Ideas.AddAsync(ideaToCreate);
 			await dbContext.SaveChangesAsync();
-			return result.Entity;
+
+			IdeaResponse ideaResponse = new()
+			{
+				Id = result.Entity.Id,
+				AcademicYearId = result.Entity.AcademicYearId,
+				UserId = result.Entity.UserId,
+				CategoryId = result.Entity.CategoryId,
+				CreatedAt = result.Entity.CreatedAt,
+				UpdatedAt = result.Entity.UpdatedAt,
+				Name = result.Entity.Name,
+				Description = result.Entity.Description,
+				IsAnonymous = result.Entity.IsAnonymous,
+				Reactions = result.Entity.Reactions,
+				Comments = result.Entity.Comments,
+				Documents = result.Entity.Documents,
+			};
+			return ideaResponse;
 		}
 
-		public async Task<Idea> GetIdea(string idIdea)
+		public async Task<IdeaResponse> GetIdea(string idIdea)
 		{
-			return dbContext.Ideas.SingleOrDefault(i => i.Id == idIdea);
+			var ideaInDb = dbContext.Ideas
+				.Include(i => i.Reactions)
+				.Include(i => i.Comments)
+				.Include(i => i.Documents).SingleOrDefault(i => i.Id == idIdea);
+
+			IdeaResponse ideaResponse = new()
+			{
+				Id = ideaInDb.Id,
+				AcademicYearId = ideaInDb.AcademicYearId,
+				UserId = ideaInDb.UserId,
+				CategoryId = ideaInDb.CategoryId,
+				CreatedAt = ideaInDb.CreatedAt,
+				UpdatedAt = ideaInDb.UpdatedAt,
+				Name = ideaInDb.Name,
+				Description = ideaInDb.Description,
+				IsAnonymous = ideaInDb.IsAnonymous,
+				Reactions = ideaInDb.Reactions,
+				Comments = ideaInDb.Comments,
+				Documents = ideaInDb.Documents,
+			};
+			return ideaResponse;
 		}
 
 		public async Task<IEnumerable<Idea>> GetIdeas()
 		{
-			return await dbContext.Ideas.ToListAsync();
+			return await dbContext.Ideas
+				.Include(i => i.Reactions)
+				.Include(i => i.Comments)
+				.Include(i => i.Documents).ToListAsync();
 		}
 
 		public async Task<Idea> RemoveIdea(string idIdea)
@@ -57,19 +107,43 @@ namespace comp1640_dotnet.Repositories
 			return result;
 		}
 
-		public async Task<Idea> UpdateIdea(string idIdea, Idea idea)
+		public async Task<IdeaResponse?> UpdateIdea(string idIdea, IdeaRequest idea)
 		{
 			var ideaInDb = await dbContext.Ideas
-							 .SingleOrDefaultAsync(e => e.Id == idIdea);
+				.Include(i => i.Reactions)
+				.Include(i => i.Comments)
+				.Include(i => i.Documents)
+				.SingleOrDefaultAsync(e => e.Id == idIdea);
 
-			if (ideaInDb != null)
+			IdeaResponse? ideaResponse = new();
+
+
+			if (ideaInDb == null)
+			{
+				return null;
+			}
+			else
 			{
 				ideaInDb.Name = idea.Name;
 				ideaInDb.Description = idea.Description;
 				ideaInDb.IsAnonymous = idea.IsAnonymous;
 				await dbContext.SaveChangesAsync();
+
+				ideaResponse.Id = ideaInDb.Id;
+				ideaResponse.AcademicYearId = ideaInDb.AcademicYearId;
+				ideaResponse.UserId = ideaInDb.UserId;
+				ideaResponse.CategoryId = ideaInDb.CategoryId;
+				ideaResponse.CreatedAt = ideaInDb.CreatedAt;
+				ideaResponse.UpdatedAt = ideaInDb.UpdatedAt;
+				ideaResponse.Name = ideaInDb.Name;
+				ideaResponse.Description = ideaInDb.Description;
+				ideaResponse.IsAnonymous = ideaInDb.IsAnonymous;
+				ideaResponse.Reactions = ideaInDb.Reactions;
+				ideaResponse.Comments = ideaInDb.Comments;
+				ideaInDb.Documents = ideaInDb.Documents;
 			}
-			return ideaInDb;
+
+			return ideaResponse;
 		}
 
 		public PreSignedUrlResponse GetS3PreSignedUrl()

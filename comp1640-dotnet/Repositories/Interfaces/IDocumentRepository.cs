@@ -1,13 +1,15 @@
-﻿using comp1640_dotnet.Models;
+﻿using comp1640_dotnet.DTOs.Requests;
+using comp1640_dotnet.DTOs.Responses;
+using comp1640_dotnet.Models;
 
 namespace comp1640_dotnet.Repositories.Interfaces
 {
 	public interface IDocumentRepository
 	{
 		Task<IEnumerable<Document>> GetDocuments();
-		Task<Document> GetDocument(string idDocument);
-		Task<Document> CreateDocument(Document document);
+		Task<DocumentResponse> GetDocument(string idDocument);
+		Task<DocumentResponse> CreateDocument(DocumentRequest document);
 		Task<Document> RemoveDocument (string idDocument);
-		Task<Document> UpdateDocument(string idDocument, Document document);
+		Task<DocumentResponse> UpdateDocument(string idDocument, DocumentRequest document);
 	}
 }
