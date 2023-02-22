@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using comp1640_dotnet.DTOs.Responses;
+using comp1640_dotnet.DTOs.Requests;
 
 namespace comp1640_dotnet.Controllers
 {
@@ -23,14 +24,14 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Idea>>> GetIdeas()
+		public async Task<ActionResult<IEnumerable<IdeaResponse>>> GetIdeas()
 		{
 			var result = await ideaRepos.GetIdeas();
 			return Ok(result);
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Idea>> GetIdea(string id)
+		public async Task<ActionResult<IdeaResponse>> GetIdea(string id)
 		{
 			var result = await ideaRepos.GetIdea(id);
 			if(result == null)
@@ -41,7 +42,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<Idea>> CreateIdea(Idea idea)
+		public async Task<ActionResult<IdeaResponse>> CreateIdea(IdeaRequest idea)
 		{
 			var result = await ideaRepos.CreateIdea(idea);
 			return Ok(result);
@@ -55,18 +56,18 @@ namespace comp1640_dotnet.Controllers
 			{
 				return BadRequest("Idea not found");
 			}
-			return Ok("Delete successful idea");
+			return Ok();
 		}
 
 		[HttpPut("{id}")]
-		public async Task<ActionResult<Idea>> UpdateIdea(string id, Idea idea)
+		public async Task<ActionResult<IdeaResponse>> UpdateIdea(string id, IdeaRequest idea)
 		{
 			var result = await ideaRepos.UpdateIdea(id, idea);
 			if (result == null)
 			{
 				return BadRequest("Idea not found");
 			}
-			return Ok("Update successful idea");
+			return Ok(result);
 		}
 
 		[HttpGet("GetS3PreSignedUrl")]

@@ -1,4 +1,6 @@
 ﻿using comp1640_dotnet.Data;
+using comp1640_dotnet.DTOs.Requests;
+using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -27,7 +29,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Document>> GetDocument(string id)
+		public async Task<ActionResult<DocumentResponse>> GetDocument(string id)
 		{
 			var result = await documentRepos.GetDocument(id);
 			if(result == null)
@@ -38,7 +40,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<Document>> CreateDocument(Document document)
+		public async Task<ActionResult<DocumentResponse>> CreateDocument(DocumentRequest document)
 		{
 			var result = await documentRepos.CreateDocument(document);
 			return Ok(result);
@@ -56,7 +58,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<ActionResult<Document>> UpdateDocument(string id, Document document)
+		public async Task<ActionResult<DocumentResponse>> UpdateDocument(string id, DocumentRequest document)
 		{
 			var result = await documentRepos.UpdateDocument(id, document);
 			if (result == null)

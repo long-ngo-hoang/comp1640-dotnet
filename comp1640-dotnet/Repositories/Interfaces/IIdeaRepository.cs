@@ -1,4 +1,5 @@
-﻿using comp1640_dotnet.DTOs.Responses;
+﻿using comp1640_dotnet.DTOs.Requests;
+using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 
 namespace comp1640_dotnet.Repositories.Interfaces
@@ -6,10 +7,10 @@ namespace comp1640_dotnet.Repositories.Interfaces
 	public interface IIdeaRepository
 	{
 		Task<IEnumerable<Idea>> GetIdeas();
-		Task<Idea> GetIdea(string idIdea);
-		Task<Idea> CreateIdea(Idea idea);
+		Task<IdeaResponse> GetIdea(string idIdea);
+		Task<IdeaResponse> CreateIdea(IdeaRequest idea);
 		Task<Idea> RemoveIdea (string idIdea);
-		Task<Idea> UpdateIdea(string idIdea, Idea idea);
+		Task<IdeaResponse> UpdateIdea(string idIdea, IdeaRequest idea);
 		PreSignedUrlResponse GetS3PreSignedUrl();
 
 	}

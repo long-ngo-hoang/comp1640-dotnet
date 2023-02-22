@@ -1,4 +1,6 @@
 ﻿using comp1640_dotnet.Data;
+using comp1640_dotnet.DTOs.Requests;
+using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -38,7 +40,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<Category>> CreateCategory(Category category)
+		public async Task<ActionResult<CategoryResponse>> CreateCategory(CategoryRequest category)
 		{
 			var result = await categoryRepos.CreateCategory(category);
 			return Ok(result);
@@ -56,14 +58,14 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<ActionResult<Category>> UpdateCategory(string id, Category category)
+		public async Task<ActionResult<CategoryResponse>> UpdateCategory(string id, CategoryRequest category)
 		{
 			var result = await categoryRepos.UpdateCategory(id, category);
 			if (result == null)
 			{
 				return BadRequest("Category not found");
 			}
-			return Ok("Update successful category");
+			return Ok(result);
 		}
 	}
 }

@@ -1,4 +1,6 @@
 ﻿using comp1640_dotnet.Data;
+using comp1640_dotnet.DTOs.Requests;
+using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -15,16 +17,40 @@ namespace comp1640_dotnet.Repositories
 			dbContext = context;
 		}
 
-		public async Task<Document> CreateDocument(Document document)
+		public async Task<DocumentResponse> CreateDocument(DocumentRequest document)
 {
-			var result = await dbContext.Documents.AddAsync(document);
+			Document documentToCreate = new()
+			{
+				IdeaId = document.IdeaId,
+				DocumentUrl = document.DocumentUrl
+			};
+			var result = await dbContext.Documents.AddAsync(documentToCreate);
 			await dbContext.SaveChangesAsync();
-			return result.Entity;
+
+			DocumentResponse documentResponse = new()
+			{
+				Id = result.Entity.Id,
+				IdeaId = result.Entity.IdeaId,
+				CreatedAt = result.Entity.CreatedAt,
+				UpdatedAt = result.Entity.UpdatedAt,
+				DocumentUrl = result.Entity.DocumentUrl
+			};
+			return documentResponse;
 		}
 
-		public async Task<Document> GetDocument(string idDocument)
+		public async Task<DocumentResponse> GetDocument(string idDocument)
 		{
-			return dbContext.Documents.SingleOrDefault(i => i.Id == idDocument);
+			var documentInDb = dbContext.Documents.SingleOrDefault(i => i.Id == idDocument);
+
+			DocumentResponse documentResponse = new()
+			{
+				Id = documentInDb.Id,
+				IdeaId = documentInDb.IdeaId,
+				CreatedAt = documentInDb.CreatedAt,
+				UpdatedAt = documentInDb.UpdatedAt,
+				DocumentUrl = documentInDb.DocumentUrl
+			};
+			return documentResponse;
 		}
 
 		public async Task<IEnumerable<Document>> GetDocuments()
@@ -41,21 +67,35 @@ namespace comp1640_dotnet.Repositories
 			{
 				dbContext.Documents.Remove(result);
 				await dbContext.SaveChangesAsync();
+
 			}
 			return result;
 		}
 
-		public async Task<Document> UpdateDocument(string idDocument, Document document)
+		public async Task<DocumentResponse?> UpdateDocument(string idDocument, DocumentRequest document)
 		{
 			var documentInDb = await dbContext.Documents
 							 .SingleOrDefaultAsync(e => e.Id == idDocument);
+			DocumentResponse documentResponse = new();
 
-			if (documentInDb != null)
+
+			if (documentInDb == null)
+			{
+				return null;
+			}
+			else
 			{
 				documentInDb.DocumentUrl = document.DocumentUrl;
 				await dbContext.SaveChangesAsync();
+
+				documentResponse.Id = documentInDb.Id;
+				documentResponse.IdeaId = documentInDb.IdeaId;
+				documentResponse.CreatedAt = documentInDb.CreatedAt;
+				documentResponse.UpdatedAt = documentInDb.UpdatedAt;
+				documentResponse.DocumentUrl = documentInDb.DocumentUrl;
 			}
-			return documentInDb;
+
+			return documentResponse;
 		}
 	}
 }
