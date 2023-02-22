@@ -1,4 +1,5 @@
-﻿using comp1640_dotnet.Models;
+﻿using comp1640_dotnet.DTOs.Responses;
+using comp1640_dotnet.Models;
 
 namespace comp1640_dotnet.Repositories.Interfaces
 {
@@ -9,6 +10,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<Idea> CreateIdea(Idea idea);
 		Task<Idea> RemoveIdea (string idIdea);
 		Task<Idea> UpdateIdea(string idIdea, Idea idea);
+		PreSignedUrlResponse GetS3PreSignedUrl();
 
 	}
 }

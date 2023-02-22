@@ -1,10 +1,13 @@
-﻿using comp1640_dotnet.Data;
+﻿using Amazon.S3.Model;
+using Amazon.S3;
+using comp1640_dotnet.Data;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using comp1640_dotnet.DTOs.Responses;
 
 namespace comp1640_dotnet.Controllers
 {
@@ -64,6 +67,14 @@ namespace comp1640_dotnet.Controllers
 				return BadRequest("Idea not found");
 			}
 			return Ok("Update successful idea");
+		}
+
+		[HttpGet("GetS3PreSignedUrl")]
+		public async Task<ActionResult<PreSignedUrlResponse>> GetS3PreSignedUrl()
+		{
+			var result = ideaRepos.GetS3PreSignedUrl();
+
+			return result;
 		}
 	}
 }
