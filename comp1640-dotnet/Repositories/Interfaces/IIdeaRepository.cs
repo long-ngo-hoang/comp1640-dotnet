@@ -12,6 +12,5 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<Idea> RemoveIdea (string idIdea);
 		Task<IdeaResponse> UpdateIdea(string idIdea, IdeaRequest idea);
 		PreSignedUrlResponse GetS3PreSignedUrl();
-
 	}
 }

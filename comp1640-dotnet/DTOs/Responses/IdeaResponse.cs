@@ -20,8 +20,8 @@ namespace comp1640_dotnet.DTOs.Responses
 		public string Description { get; set; } = string.Empty;
 		public bool IsAnonymous { get; set; }
 
-		public List<Reaction>? Reactions { get; set; }
+		public List<ReactionResponse>? Reactions { get; set; }
 		public List<Comment>? Comments { get; set; }
-		public List<Document>? Documents { get; set; }
+		public List<DocumentResponse>? Documents { get; set; }
 	}
 }
