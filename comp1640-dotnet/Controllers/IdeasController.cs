@@ -17,16 +17,15 @@ namespace comp1640_dotnet.Controllers
 	public class IdeasController : ControllerBase
 	{
 		private readonly IIdeaRepository ideaRepos;
-
 		public IdeasController(IIdeaRepository _ideaRepos)
 		{
 			this.ideaRepos = _ideaRepos;
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<IdeaResponse>>> GetIdeas()
+		public async Task<ActionResult<AllIdeasResponse>> GetIdeas(int pageIndex = 1, string? nameIdea = null)
 		{
-			var result = await ideaRepos.GetIdeas();
+			var result = await ideaRepos.GetIdeas(pageIndex, nameIdea);
 			return Ok(result);
 		}
 

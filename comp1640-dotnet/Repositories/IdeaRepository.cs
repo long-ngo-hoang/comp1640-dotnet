@@ -12,6 +12,8 @@ using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
 using Amazon.Runtime;
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.DTOs.Requests;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Collections.Generic;
 
 namespace comp1640_dotnet.Repositories
 {
@@ -19,6 +21,7 @@ namespace comp1640_dotnet.Repositories
 	{
 		private readonly ApplicationDbContext dbContext;
 		private readonly IConfiguration configuration;
+		private static readonly int pageSize = 5;
 
 
 		public IdeaRepository(ApplicationDbContext context, IConfiguration configuration)
@@ -84,14 +87,34 @@ namespace comp1640_dotnet.Repositories
 				Documents = ideaInDb.Documents,
 			};
 			return ideaResponse;
-		}
-
-		public async Task<IEnumerable<Idea>> GetIdeas()
+}
+		public async Task<AllIdeasResponse> GetIdeas(int pageIndex, string? nameIdea)
 		{
-			return await dbContext.Ideas
-				.Include(i => i.Reactions)
-				.Include(i => i.Comments)
-				.Include(i => i.Documents).ToListAsync();
+			var ideasInDb = new List<Idea>();
+
+			if (nameIdea != null)
+			{
+				 ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
+					.Include(i => i.Reactions)
+					.Include(i => i.Comments)
+					.Include(i => i.Documents).Where(i => i.Name.Contains(nameIdea)).ToListAsync();
+			}
+			else
+			{
+				 ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
+					.Include(i => i.Reactions)
+					.Include(i => i.Comments)
+					.Include(i => i.Documents).ToListAsync();
+			}
+
+			AllIdeasResponse allIdeasResponse = new()
+			{
+				PageIndex = pageIndex,
+				TotalPage = (int)Math.Ceiling((double)dbContext.Ideas.Count() / pageSize),
+				Ideas = ideasInDb
+			};
+
+			return allIdeasResponse;
 		}
 
 		public async Task<Idea> RemoveIdea(string idIdea)
