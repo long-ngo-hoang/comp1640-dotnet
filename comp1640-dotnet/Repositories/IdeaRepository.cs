@@ -28,7 +28,6 @@ namespace comp1640_dotnet.Repositories
 		{
 			dbContext = context;
 			this.configuration = configuration;
-
 		}
 
 		public async Task<IdeaResponse> CreateIdea(IdeaRequest idea)
@@ -56,11 +55,9 @@ namespace comp1640_dotnet.Repositories
 				UpdatedAt = result.Entity.UpdatedAt,
 				Name = result.Entity.Name,
 				Description = result.Entity.Description,
-				IsAnonymous = result.Entity.IsAnonymous,
-				Reactions = result.Entity.Reactions,
-				Comments = result.Entity.Comments,
-				Documents = result.Entity.Documents,
+				IsAnonymous = result.Entity.IsAnonymous
 			};
+
 			return ideaResponse;
 		}
 
@@ -82,12 +79,13 @@ namespace comp1640_dotnet.Repositories
 				Name = ideaInDb.Name,
 				Description = ideaInDb.Description,
 				IsAnonymous = ideaInDb.IsAnonymous,
-				Reactions = ideaInDb.Reactions,
+				Reactions = ConvertReactions(ideaInDb.Reactions),
 				Comments = ideaInDb.Comments,
-				Documents = ideaInDb.Documents,
+				Documents = ConvertDocuments(ideaInDb.Documents),
 			};
 			return ideaResponse;
 }
+
 		public async Task<AllIdeasResponse> GetIdeas(int pageIndex, string? nameIdea)
 		{
 			var ideasInDb = new List<Idea>();
@@ -111,7 +109,7 @@ namespace comp1640_dotnet.Repositories
 			{
 				PageIndex = pageIndex,
 				TotalPage = (int)Math.Ceiling((double)dbContext.Ideas.Count() / pageSize),
-				Ideas = ideasInDb
+				Ideas = ConvertIdeas(ideasInDb)
 			};
 
 			return allIdeasResponse;
@@ -161,7 +159,7 @@ namespace comp1640_dotnet.Repositories
 				ideaResponse.Name = ideaInDb.Name;
 				ideaResponse.Description = ideaInDb.Description;
 				ideaResponse.IsAnonymous = ideaInDb.IsAnonymous;
-				ideaResponse.Reactions = ideaInDb.Reactions;
+				//ideaResponse.Reactions = ideaInDb.Reactions;
 				ideaResponse.Comments = ideaInDb.Comments;
 				ideaInDb.Documents = ideaInDb.Documents;
 			}
@@ -194,6 +192,59 @@ namespace comp1640_dotnet.Repositories
 				PreSignedUrl = preSignedUrl,
 			};
 			return preSignedUrlResponse;
+		}
+
+		private static List<ReactionResponse> ConvertReactions(List<Reaction> _reactions)
+		{
+			var reactions = _reactions
+				.Select(x => new ReactionResponse()
+				{
+					Id = x.Id,
+					UserId = x.UserId,
+					IdeaId = x.IdeaId,
+					CreatedAt = x.CreatedAt,
+					UpdatedAt = x.UpdatedAt,
+					Name = x.Name
+				}).ToList();
+
+			return reactions;
+		}
+
+		private static List<DocumentResponse> ConvertDocuments(List<Document> _documents)
+		{
+			var documents = _documents
+				.Select(x => new DocumentResponse()
+				{
+					Id = x.Id,
+					IdeaId = x.IdeaId,
+					CreatedAt = x.CreatedAt,
+					UpdatedAt = x.UpdatedAt,
+					DocumentUrl = x.DocumentUrl
+				}).ToList();
+
+			return documents;
+		}
+
+		private static List<IdeaResponse> ConvertIdeas(List<Idea> _ideas)
+		{
+			var ideas = _ideas
+				.Select(x => new IdeaResponse()
+				{
+					Id = x.Id,
+					AcademicYearId = x.AcademicYearId,
+					UserId = x.UserId,
+					CategoryId = x.CategoryId,
+					CreatedAt = x.CreatedAt,
+					UpdatedAt = x.UpdatedAt,
+					Name = x.Name,
+					Description = x.Description,
+					IsAnonymous = x.IsAnonymous,
+					Reactions = ConvertReactions(x.Reactions),
+					Documents = ConvertDocuments(x.Documents)
+
+				}).ToList();
+
+			return ideas;
 		}
 	}
 }

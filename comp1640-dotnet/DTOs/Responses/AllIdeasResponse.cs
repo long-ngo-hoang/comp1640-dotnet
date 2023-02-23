@@ -6,6 +6,6 @@ namespace comp1640_dotnet.DTOs.Responses
 	{
 		public int PageIndex { get; set; }
 		public int TotalPage { get; set; }
-		public List<Idea>? Ideas { get; set; }
+		public List<IdeaResponse>? Ideas { get; set; }
 	}
 }
