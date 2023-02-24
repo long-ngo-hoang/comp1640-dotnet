@@ -16,14 +16,14 @@ namespace comp1640_dotnet.Models
 		public Profile? Profile { get; set; }
 
 		[ForeignKey("Department")]
-		public string DepartmentId { get; set; }
+		public string DepartmentId { get; set; } = string.Empty;
 		public Department? Department { get; set; }
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-		public string UserName { get; set; }
-		public string Email { get; set; }
+		public string UserName { get; set; } = string.Empty;
+		public string Email { get; set; } = string.Empty;
 		public byte[] PasswordHash { get; set; }
 		public byte[] PasswordSalt { get; set; }
 

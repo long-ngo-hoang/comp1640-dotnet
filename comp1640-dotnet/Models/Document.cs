@@ -12,14 +12,14 @@ namespace comp1640_dotnet.Models
 
 		//relations
 		[ForeignKey("Idea")]
-		public string IdeaId { get; set; }
+		public string IdeaId { get; set; } = string.Empty;
 		public Idea? Idea { get; set; }
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-		public string DocumentUrl { get; set; }
-		
+		public string DocumentUrl { get; set; } = string.Empty;
+
 
 	}
 }

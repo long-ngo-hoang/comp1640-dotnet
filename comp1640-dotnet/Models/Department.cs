@@ -11,10 +11,11 @@ namespace comp1640_dotnet.Models
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-		public string Name { get; set; }
+		 
+		public string Name { get; set; } = string.Empty;
 
 		//relation
 		public List<User>? Users { get; set; }
+		public List<Idea>? Ideas { get; set; }
 	}
 }
