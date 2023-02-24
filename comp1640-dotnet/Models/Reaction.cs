@@ -15,12 +15,12 @@ namespace comp1640_dotnet.Models
 		public User? User { get; set; }
 
 		[ForeignKey("Idea")]
-		public string IdeaId { get; set; }
+		public string IdeaId { get; set; } = string.Empty;
 		public Idea? Idea { get; set; }
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-		public string Name { get; set; }
+		public string Name { get; set; } = string.Empty;
 	}
 }
