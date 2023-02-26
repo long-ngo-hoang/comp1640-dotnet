@@ -29,7 +29,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Category>> GetCategory(string id)
+		public async Task<ActionResult<CategoryResponse>> GetCategory(string id)
 		{
 			var result = await categoryRepos.GetCategory(id);
 			if(result == null)
