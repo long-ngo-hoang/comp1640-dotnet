@@ -50,11 +50,17 @@ namespace comp1640_dotnet.Controllers
 		public async Task<ActionResult<Category>> RemoveCategory(string id)
 		{
 			var result = await categoryRepos.RemoveCategory(id);
+
 			if(result == null)
 			{
 				return BadRequest("Category not found");
 			}
-			return Ok("Delete successful category");
+
+			else if(result.Ideas.Count() == 0)
+			{
+				return Ok("Delete successful category");
+			}
+				return BadRequest("the category cannot be deleted because of the idea of using it.");
 		}
 
 		[HttpPut("{id}")]
