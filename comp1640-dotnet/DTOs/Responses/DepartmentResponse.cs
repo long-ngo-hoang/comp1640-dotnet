@@ -9,6 +9,6 @@
 
 		public string Name { get; set; } = string.Empty;
 
-		public AllIdeasResponse AllIdeas { get; set; }
+		public AllIdeasResponse? AllIdeas { get; set; }
 	}
 }

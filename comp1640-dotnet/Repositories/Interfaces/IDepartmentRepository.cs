@@ -9,5 +9,6 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<IEnumerable<Department>> GetDepartments();
 		Task<DepartmentResponse> GetDepartment(string idDepartment, int pageIndex);
 		Task<DepartmentResponse> CreateDepartment(DepartmentRequest department);
+		Task<DepartmentResponse> UpdateDepartment(string idDepartment, DepartmentRequest department);
 	}
 }

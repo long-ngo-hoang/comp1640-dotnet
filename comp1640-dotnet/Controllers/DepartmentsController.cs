@@ -45,5 +45,16 @@ namespace comp1640_dotnet.Controllers
 			var result = await departmentRepos.CreateDepartment(department);
 			return Ok(result);
 		}
+
+		[HttpPut("{id}")]
+		public async Task<ActionResult<DepartmentResponse>> UpdateDepartment(string id, DepartmentRequest department)
+		{
+			var result = await departmentRepos.UpdateDepartment(id, department);
+			if (result == null)
+			{
+				return BadRequest("Department not found");
+			}
+			return Ok("Update successful department");
+		}
 	}
 }

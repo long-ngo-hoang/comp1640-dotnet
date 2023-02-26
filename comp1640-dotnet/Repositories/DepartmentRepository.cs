@@ -6,6 +6,7 @@ using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Xml.Linq;
 
 namespace comp1640_dotnet.Repositories
 {
@@ -43,14 +44,18 @@ namespace comp1640_dotnet.Repositories
 			return departmentResponse;
 		}
 
-		public async Task<DepartmentResponse> GetDepartment(string idDepartment, int pageIndex)
+		public async Task<DepartmentResponse?> GetDepartment(string idDepartment, int pageIndex)
 		{
 			var departmentInDB = dbContext.Departments
 				.Include(i => i.Ideas
 					.Skip((pageIndex - 1) * pageSize)
 					.Take(pageSize))
 				.SingleOrDefault(i => i.Id == idDepartment);
-
+			
+			if(departmentInDB == null)
+			{
+				return null;
+			}
 			DepartmentResponse departmentResponse = new()
 			{
 				Id = departmentInDB.Id,
@@ -70,6 +75,29 @@ namespace comp1640_dotnet.Repositories
 		public async Task<IEnumerable<Department>> GetDepartments()
 		{
 			return await dbContext.Departments.ToListAsync();
+		}
+
+		public async Task<DepartmentResponse?> UpdateDepartment(string idDepartment, DepartmentRequest department)
+		{
+			var departmentInDb = await dbContext.Departments
+							 .SingleOrDefaultAsync(e => e.Id == idDepartment);
+
+			DepartmentResponse departmentResponse = new();
+
+			if (departmentInDb == null)
+			{
+				return null;
+			}
+
+			departmentInDb.Name = department.Name;
+			await dbContext.SaveChangesAsync();
+
+			departmentResponse.Id = departmentInDb.Id;
+			departmentResponse.CreatedAt = departmentInDb.CreatedAt;
+			departmentResponse.UpdatedAt = departmentInDb.UpdatedAt;
+			departmentResponse.Name = departmentInDb.Name;
+
+			return departmentResponse;
 		}
 	}
 }
