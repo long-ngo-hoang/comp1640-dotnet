@@ -21,6 +21,7 @@ namespace comp1640_dotnet.Factory
 					Description = x.Description,
 					IsAnonymous = x.IsAnonymous,
 					Reactions = ConvertListReactions(x.Reactions),
+					Comments = ConvertListComments(x.Comments),
 					Documents = ConvertListDocuments(x.Documents)
 				}).ToList();
 
@@ -68,6 +69,30 @@ namespace comp1640_dotnet.Factory
 					}).ToList();
 
 				return documents;
+			}
+		}
+
+		public List<CommentResponse>? ConvertListComments(List<Comment>? _comments)
+		{
+			if (_comments == null)
+			{
+				return null;
+			}
+			else
+			{
+				var comments = _comments
+					.Select(x => new CommentResponse()
+					{
+						Id = x.Id,
+						UserId = x.UserId,
+						IdeaId = x.IdeaId,
+						CreatedAt = x.CreatedAt,
+						UpdatedAt = x.UpdatedAt,
+						Content = x.Content,
+						IsAnonymous = x.IsAnonymous
+					}).ToList();
+
+				return comments;
 			}
 		}
 	}
