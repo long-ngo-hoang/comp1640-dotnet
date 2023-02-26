@@ -37,10 +37,14 @@ namespace comp1640_dotnet.Repositories
 			return categoryResponse;
 		}
 
-		public async Task<CategoryResponse> GetCategory(string idCategory)
+		public async Task<CategoryResponse?> GetCategory(string idCategory)
 		{
 			var categoryInDB = dbContext.Categories.SingleOrDefault(i => i.Id == idCategory);
 
+			if(categoryInDB == null)
+			{
+				return null;
+			}
 			CategoryResponse categoryResponse = new()
 			{
 				Id = categoryInDB.Id,
@@ -56,12 +60,20 @@ namespace comp1640_dotnet.Repositories
 			return await dbContext.Categories.ToListAsync();
 		}
 
-		public async Task<Category> RemoveCategory(string idCategory)
+		public async Task<Category?> RemoveCategory(string idCategory)
 		{
-			var result = await dbContext.Categories
+			var result = await dbContext.Categories.Include(i => i.Ideas)
 							 .SingleOrDefaultAsync(e => e.Id == idCategory);
 
-			if (result != null)
+			if(result == null)
+			{
+				return null;
+			}
+			else if(result.Ideas.Count() != 0)
+			{
+				return result;
+			}
+			else if (result != null && result.Ideas.Count() == 0)
 			{
 				dbContext.Categories.Remove(result);
 				await dbContext.SaveChangesAsync();
@@ -80,16 +92,15 @@ namespace comp1640_dotnet.Repositories
 			{
 				return null;
 			}
-			else
-			{
-				categoryInDb.Name = category.Name;
-				await dbContext.SaveChangesAsync();
-				categoryResponse.Id = categoryInDb.Id;
-				categoryResponse.CreatedAt = categoryInDb.CreatedAt;
-				categoryResponse.UpdatedAt = categoryInDb.UpdatedAt;
-				categoryResponse.Name = categoryInDb.Name;
-				return categoryResponse;
-			}
+
+			categoryInDb.Name = category.Name;
+			await dbContext.SaveChangesAsync();
+			categoryResponse.Id = categoryInDb.Id;
+			categoryResponse.CreatedAt = categoryInDb.CreatedAt;
+			categoryResponse.UpdatedAt = categoryInDb.UpdatedAt;
+			categoryResponse.Name = categoryInDb.Name;
+
+			return categoryResponse;
 		}
 	}
 }
