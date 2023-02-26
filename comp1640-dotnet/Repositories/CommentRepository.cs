@@ -3,6 +3,8 @@ using comp1640_dotnet.DTOs.Requests;
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
+using comp1640_dotnet.Services;
+using comp1640_dotnet.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -11,10 +13,12 @@ namespace comp1640_dotnet.Repositories
 	public class CommentRepository : ICommentRepository
 	{
 		private readonly ApplicationDbContext dbContext;
+		private readonly IEmailService emailService;
 
-		public CommentRepository(ApplicationDbContext context)
+		public CommentRepository(ApplicationDbContext context, IEmailService _emailService)
 		{
 			dbContext = context;
+			emailService = _emailService;
 		}
 
 		public async Task<CommentResponse> CreateComment(CommentRequest comment)
@@ -39,6 +43,13 @@ namespace comp1640_dotnet.Repositories
 				Content = result.Entity.Content,
 				IsAnonymous = result.Entity.IsAnonymous
 			};
+
+			var ideaInDb = await dbContext.Ideas
+				.Include(u => u.User)
+				.SingleOrDefaultAsync(i => i.Id == result.Entity.IdeaId);
+
+			emailService.SendEmail(ideaInDb.User.Email, "Your idea has a new comment.");
+
 
 			return commentResponse;
 		}

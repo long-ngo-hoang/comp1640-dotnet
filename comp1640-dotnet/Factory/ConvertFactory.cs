@@ -27,6 +27,7 @@ namespace comp1640_dotnet.Factory
 
 			return ideas;
 		}
+
 		public List<ReactionResponse>? ConvertListReactions(List<Reaction>? _reactions)
 		{
 			if (_reactions == null)

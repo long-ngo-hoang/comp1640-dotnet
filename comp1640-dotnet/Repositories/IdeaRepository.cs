@@ -15,6 +15,7 @@ using comp1640_dotnet.DTOs.Requests;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using comp1640_dotnet.Factory;
+using comp1640_dotnet.Services.Interfaces;
 
 namespace comp1640_dotnet.Repositories
 {
@@ -23,14 +24,19 @@ namespace comp1640_dotnet.Repositories
 		private readonly ApplicationDbContext dbContext;
 		private readonly IConfiguration configuration;
 		private static readonly int pageSize = 5;
-		private static ConvertFactory convertFactory;
+		private readonly ConvertFactory convertFactory;
+		private readonly IEmailService emailService;
 
 
-		public IdeaRepository(ApplicationDbContext _context, IConfiguration _configuration, ConvertFactory _convertFactory)
+		public IdeaRepository(ApplicationDbContext _context, 
+			IConfiguration _configuration, 
+			ConvertFactory _convertFactory, 
+			IEmailService _emailService)
 		{
 			dbContext = _context;
 			configuration = _configuration;
 			convertFactory = _convertFactory;
+			emailService = _emailService;
 		}
 
 		public async Task<IdeaResponse> CreateIdea(IdeaRequest idea)
@@ -62,6 +68,8 @@ namespace comp1640_dotnet.Repositories
 				Description = result.Entity.Description,
 				IsAnonymous = result.Entity.IsAnonymous
 			};
+
+			emailService.SendEmail("longnhgcd191143@fpt.edu.vn", "Your employee just posted an idea");
 			return ideaResponse;
 		}
 
