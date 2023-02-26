@@ -12,8 +12,8 @@ using comp1640_dotnet.Data;
 namespace comp1640_dotnet.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230216214246_create-tables")]
-    partial class createtables
+    [Migration("20230226165452_create-table-invitation-notification")]
+    partial class createtableinvitationnotification
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -86,7 +86,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdeaId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsAnonymous")
@@ -140,7 +139,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IdeaId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -159,15 +157,16 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AcademicYearId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CategoryId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DepartmentId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -184,7 +183,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -193,9 +191,76 @@ namespace comp1640_dotnet.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("DepartmentId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Ideas");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.Invitation", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InviteUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InviteUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Invitations");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.Notification", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CommentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdeaId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("IdeaId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("comp1640_dotnet.Models.Profile", b =>
@@ -222,13 +287,13 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Profiles");
                 });
@@ -242,7 +307,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdeaId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
@@ -264,6 +328,53 @@ namespace comp1640_dotnet.Migrations
                     b.ToTable("Reactions");
                 });
 
+            modelBuilder.Entity("comp1640_dotnet.Models.RefreshToken", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TokenCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TokenExpires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.Role", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("comp1640_dotnet.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -273,7 +384,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DepartmentId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Email")
@@ -302,13 +412,31 @@ namespace comp1640_dotnet.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("comp1640_dotnet.Models.UserRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRoles");
+                });
+
             modelBuilder.Entity("comp1640_dotnet.Models.Comment", b =>
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Comments")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Comments")
@@ -323,9 +451,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Documents")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
                     b.Navigation("Idea");
                 });
@@ -334,25 +460,61 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.AcademicYear", "AcademicYear")
                         .WithMany("Ideas")
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AcademicYearId");
 
                     b.HasOne("comp1640_dotnet.Models.Category", "Category")
                         .WithMany("Ideas")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("comp1640_dotnet.Models.Department", "Department")
+                        .WithMany("Ideas")
+                        .HasForeignKey("DepartmentId");
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Ideas")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("AcademicYear");
 
                     b.Navigation("Category");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.Invitation", b =>
+                {
+                    b.HasOne("comp1640_dotnet.Models.User", "InviteUser")
+                        .WithMany()
+                        .HasForeignKey("InviteUserId");
+
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("InviteUser");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.Notification", b =>
+                {
+                    b.HasOne("comp1640_dotnet.Models.Comment", "Comment")
+                        .WithMany()
+                        .HasForeignKey("CommentId");
+
+                    b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
+                        .WithMany()
+                        .HasForeignKey("IdeaId");
+
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("Idea");
 
                     b.Navigation("User");
                 });
@@ -361,9 +523,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithOne("Profile")
-                        .HasForeignKey("comp1640_dotnet.Models.Profile", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("comp1640_dotnet.Models.Profile", "UserId");
 
                     b.Navigation("User");
                 });
@@ -372,9 +532,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Reactions")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Reactions")
@@ -385,15 +543,37 @@ namespace comp1640_dotnet.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("comp1640_dotnet.Models.RefreshToken", b =>
+                {
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("comp1640_dotnet.Models.RefreshToken", "UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("comp1640_dotnet.Models.User", b =>
                 {
                     b.HasOne("comp1640_dotnet.Models.Department", "Department")
                         .WithMany("Users")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DepartmentId");
 
                     b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.UserRole", b =>
+                {
+                    b.HasOne("comp1640_dotnet.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId");
+
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("comp1640_dotnet.Models.AcademicYear", b =>
@@ -408,6 +588,8 @@ namespace comp1640_dotnet.Migrations
 
             modelBuilder.Entity("comp1640_dotnet.Models.Department", b =>
                 {
+                    b.Navigation("Ideas");
+
                     b.Navigation("Users");
                 });
 
@@ -429,6 +611,8 @@ namespace comp1640_dotnet.Migrations
                     b.Navigation("Profile");
 
                     b.Navigation("Reactions");
+
+                    b.Navigation("RefreshToken");
                 });
 #pragma warning restore 612, 618
         }

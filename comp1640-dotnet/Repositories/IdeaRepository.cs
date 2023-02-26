@@ -24,10 +24,10 @@ namespace comp1640_dotnet.Repositories
 		private static readonly int pageSize = 5;
 
 
-		public IdeaRepository(ApplicationDbContext context, IConfiguration configuration)
+		public IdeaRepository(ApplicationDbContext _context, IConfiguration _configuration)
 		{
-			dbContext = context;
-			this.configuration = configuration;
+			dbContext = _context;
+			configuration = _configuration;
 		}
 
 		public async Task<IdeaResponse> CreateIdea(IdeaRequest idea)
@@ -35,6 +35,7 @@ namespace comp1640_dotnet.Repositories
 			Idea ideaToCreate = new()
 			{
 				AcademicYearId = idea.AcademicYearId,
+				DepartmentId = idea.DepartmentId,
 				UserId = idea.UserId,
 				CategoryId = idea.CategoryId,
 				Name = idea.Name,
@@ -49,6 +50,7 @@ namespace comp1640_dotnet.Repositories
 			{
 				Id = result.Entity.Id,
 				AcademicYearId = result.Entity.AcademicYearId,
+				DepartmentId = idea.DepartmentId,
 				UserId = result.Entity.UserId,
 				CategoryId = result.Entity.CategoryId,
 				CreatedAt = result.Entity.CreatedAt,
@@ -72,6 +74,7 @@ namespace comp1640_dotnet.Repositories
 			{
 				Id = ideaInDb.Id,
 				AcademicYearId = ideaInDb.AcademicYearId,
+				DepartmentId = ideaInDb.DepartmentId,
 				UserId = ideaInDb.UserId,
 				CategoryId = ideaInDb.CategoryId,
 				CreatedAt = ideaInDb.CreatedAt,
@@ -84,7 +87,7 @@ namespace comp1640_dotnet.Repositories
 				Documents = ConvertDocuments(ideaInDb.Documents),
 			};
 			return ideaResponse;
-}
+		}
 
 		public async Task<AllIdeasResponse> GetIdeas(int pageIndex, string? nameIdea)
 		{
@@ -92,17 +95,17 @@ namespace comp1640_dotnet.Repositories
 
 			if (nameIdea != null)
 			{
-				 ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
-					.Include(i => i.Reactions)
-					.Include(i => i.Comments)
-					.Include(i => i.Documents).Where(i => i.Name.Contains(nameIdea)).ToListAsync();
+				ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
+				 .Include(i => i.Reactions)
+				 .Include(i => i.Comments)
+				 .Include(i => i.Documents).Where(i => i.Name.Contains(nameIdea)).ToListAsync();
 			}
 			else
 			{
-				 ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
-					.Include(i => i.Reactions)
-					.Include(i => i.Comments)
-					.Include(i => i.Documents).ToListAsync();
+				ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
+				 .Include(i => i.Reactions)
+				 .Include(i => i.Comments)
+				 .Include(i => i.Documents).ToListAsync();
 			}
 
 			AllIdeasResponse allIdeasResponse = new()
@@ -152,6 +155,7 @@ namespace comp1640_dotnet.Repositories
 
 				ideaResponse.Id = ideaInDb.Id;
 				ideaResponse.AcademicYearId = ideaInDb.AcademicYearId;
+				ideaResponse.DepartmentId = ideaInDb.DepartmentId;
 				ideaResponse.UserId = ideaInDb.UserId;
 				ideaResponse.CategoryId = ideaInDb.CategoryId;
 				ideaResponse.CreatedAt = ideaInDb.CreatedAt;
@@ -232,6 +236,7 @@ namespace comp1640_dotnet.Repositories
 				{
 					Id = x.Id,
 					AcademicYearId = x.AcademicYearId,
+					DepartmentId = x.DepartmentId,
 					UserId = x.UserId,
 					CategoryId = x.CategoryId,
 					CreatedAt = x.CreatedAt,
