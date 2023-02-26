@@ -92,7 +92,7 @@ namespace comp1640_dotnet.Repositories
 					IsAnonymous = ideaInDb.IsAnonymous,
 
 					Reactions = convertFactory.ConvertListReactions(ideaInDb.Reactions),
-					Comments = ideaInDb.Comments,
+					Comments = convertFactory.ConvertListComments(ideaInDb.Comments),
 					Documents = convertFactory.ConvertListDocuments(ideaInDb.Documents),
 				};
 				return ideaResponse;
@@ -179,9 +179,10 @@ namespace comp1640_dotnet.Repositories
 				ideaResponse.Name = ideaInDb.Name;
 				ideaResponse.Description = ideaInDb.Description;
 				ideaResponse.IsAnonymous = ideaInDb.IsAnonymous;
-				//ideaResponse.Reactions = ideaInDb.Reactions;
-				ideaResponse.Comments = ideaInDb.Comments;
-				ideaInDb.Documents = ideaInDb.Documents;
+
+				ideaResponse.Reactions = convertFactory.ConvertListReactions(ideaInDb.Reactions);
+				ideaResponse.Comments = convertFactory.ConvertListComments(ideaInDb.Comments);
+				ideaResponse.Documents = convertFactory.ConvertListDocuments(ideaInDb.Documents);
 			}
 
 			return ideaResponse;

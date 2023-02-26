@@ -23,7 +23,7 @@ namespace comp1640_dotnet.DTOs.Responses
 		public bool IsAnonymous { get; set; }
 
 		public List<ReactionResponse>? Reactions { get; set; }
-		public List<Comment>? Comments { get; set; }
+		public List<CommentResponse>? Comments { get; set; }
 		public List<DocumentResponse>? Documents { get; set; }
 	}
 }
