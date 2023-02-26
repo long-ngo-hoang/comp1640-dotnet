@@ -3,6 +3,8 @@ using comp1640_dotnet.Data;
 using comp1640_dotnet.Factory;
 using comp1640_dotnet.Repositories;
 using comp1640_dotnet.Repositories.Interfaces;
+using comp1640_dotnet.Services;
+using comp1640_dotnet.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +32,7 @@ builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ConvertFactory>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
