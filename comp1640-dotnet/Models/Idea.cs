@@ -12,19 +12,19 @@ namespace comp1640_dotnet.Models
 
 		//relations
 		[ForeignKey("AcademicYear")]
-		public string AcademicYearId { get; set; } = string.Empty;
+		public string? AcademicYearId { get; set; }
 		public AcademicYear? AcademicYear { get; set; }
 
 		[ForeignKey("Department")]
-		public string DepartmentId { get; set; } = string.Empty;
+		public string? DepartmentId { get; set; }
 		public Department? Department { get; set; }
 
 		[ForeignKey("User")]
-		public string UserId { get; set; } = string.Empty;
+		public string? UserId { get; set; }
 		public User? User { get; set; }
 
 		[ForeignKey("Category")]
-		public string CategoryId { get; set; } = string.Empty;
+		public string? CategoryId { get; set; }
 		public Category? Category { get; set; }
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

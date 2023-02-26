@@ -12,8 +12,8 @@ using comp1640_dotnet.Data;
 namespace comp1640_dotnet.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230224140924_add-role-update-tables")]
-    partial class addroleupdatetables
+    [Migration("20230224210005_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -86,7 +86,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdeaId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsAnonymous")
@@ -140,7 +139,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IdeaId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -159,18 +157,15 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AcademicYearId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CategoryId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DepartmentId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
@@ -188,7 +183,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -228,13 +222,13 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Profiles");
                 });
@@ -248,7 +242,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdeaId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
@@ -292,13 +285,13 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("RefreshTokens");
                 });
@@ -326,7 +319,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DepartmentId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Email")
@@ -361,11 +353,9 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("RoleId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -381,9 +371,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Comments")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Comments")
@@ -398,9 +386,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Documents")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
                     b.Navigation("Idea");
                 });
@@ -409,27 +395,19 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.AcademicYear", "AcademicYear")
                         .WithMany("Ideas")
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AcademicYearId");
 
                     b.HasOne("comp1640_dotnet.Models.Category", "Category")
                         .WithMany("Ideas")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
 
                     b.HasOne("comp1640_dotnet.Models.Department", "Department")
                         .WithMany("Ideas")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DepartmentId");
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Ideas")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("AcademicYear");
 
@@ -444,9 +422,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithOne("Profile")
-                        .HasForeignKey("comp1640_dotnet.Models.Profile", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("comp1640_dotnet.Models.Profile", "UserId");
 
                     b.Navigation("User");
                 });
@@ -455,9 +431,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Idea", "Idea")
                         .WithMany("Reactions")
-                        .HasForeignKey("IdeaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdeaId");
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany("Reactions")
@@ -472,9 +446,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithOne("RefreshToken")
-                        .HasForeignKey("comp1640_dotnet.Models.RefreshToken", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("comp1640_dotnet.Models.RefreshToken", "UserId");
 
                     b.Navigation("User");
                 });
@@ -483,9 +455,7 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Department", "Department")
                         .WithMany("Users")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DepartmentId");
 
                     b.Navigation("Department");
                 });
@@ -494,15 +464,11 @@ namespace comp1640_dotnet.Migrations
                 {
                     b.HasOne("comp1640_dotnet.Models.Role", "Role")
                         .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoleId");
 
                     b.HasOne("comp1640_dotnet.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Role");
 

@@ -9,11 +9,11 @@ namespace comp1640_dotnet.Models
 		public string Id { get; set; } = Guid.NewGuid().ToString();
 
 		[ForeignKey("User")]
-		public string UserId { get; set; } = string.Empty;
+		public string? UserId { get; set; }
 		public User? User { get; set; }
 
 		[ForeignKey("Role")]
-		public string RoleId { get; set; } = string.Empty;
+		public string? RoleId { get; set; }
 		public Role? Role { get; set; }
 	}
 }
