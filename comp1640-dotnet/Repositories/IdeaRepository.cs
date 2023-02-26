@@ -65,31 +65,38 @@ namespace comp1640_dotnet.Repositories
 			return ideaResponse;
 		}
 
-		public async Task<IdeaResponse> GetIdea(string idIdea)
+		public async Task<IdeaResponse?> GetIdea(string idIdea)
 		{
 			var ideaInDb = dbContext.Ideas
 				.Include(i => i.Reactions)
 				.Include(i => i.Comments)
 				.Include(i => i.Documents).SingleOrDefault(i => i.Id == idIdea);
 
-			IdeaResponse ideaResponse = new()
+			if (ideaInDb == null)
 			{
-				Id = ideaInDb.Id,
-				AcademicYearId = ideaInDb.AcademicYearId,
-				DepartmentId = ideaInDb.DepartmentId,
-				UserId = ideaInDb.UserId,
-				CategoryId = ideaInDb.CategoryId,
-				CreatedAt = ideaInDb.CreatedAt,
-				UpdatedAt = ideaInDb.UpdatedAt,
-				Name = ideaInDb.Name,
-				Description = ideaInDb.Description,
-				IsAnonymous = ideaInDb.IsAnonymous,
-				
-				Reactions = convertFactory.ConvertListReactions(ideaInDb.Reactions),
-				Comments = ideaInDb.Comments,
-				Documents = convertFactory.ConvertListDocuments(ideaInDb.Documents),
-			};
-			return ideaResponse;
+				return null;
+			}
+			else
+			{
+				IdeaResponse ideaResponse = new()
+				{
+					Id = ideaInDb.Id,
+					AcademicYearId = ideaInDb.AcademicYearId,
+					DepartmentId = ideaInDb.DepartmentId,
+					UserId = ideaInDb.UserId,
+					CategoryId = ideaInDb.CategoryId,
+					CreatedAt = ideaInDb.CreatedAt,
+					UpdatedAt = ideaInDb.UpdatedAt,
+					Name = ideaInDb.Name,
+					Description = ideaInDb.Description,
+					IsAnonymous = ideaInDb.IsAnonymous,
+
+					Reactions = convertFactory.ConvertListReactions(ideaInDb.Reactions),
+					Comments = ideaInDb.Comments,
+					Documents = convertFactory.ConvertListDocuments(ideaInDb.Documents),
+				};
+				return ideaResponse;
+			}
 		}
 
 		public async Task<AllIdeasResponse> GetIdeas(int pageIndex, string? nameIdea)
@@ -124,10 +131,16 @@ namespace comp1640_dotnet.Repositories
 		public async Task<Idea> RemoveIdea(string idIdea)
 		{
 			var result = await dbContext.Ideas
-							 .SingleOrDefaultAsync(e => e.Id == idIdea);
+				.Include(r => r.Reactions)
+				.Include(c => c.Comments)
+				.Include(d => d.Documents)
+				.SingleOrDefaultAsync(e => e.Id == idIdea);
 
 			if (result != null)
 			{
+				dbContext.Reactions?.RemoveRange(result.Reactions);
+				dbContext.Comments?.RemoveRange(result.Comments);
+				dbContext.Documents?.RemoveRange(result.Documents);
 				dbContext.Ideas.Remove(result);
 				await dbContext.SaveChangesAsync();
 			}
