@@ -16,7 +16,7 @@ namespace comp1640_dotnet.Models
 		public Profile? Profile { get; set; }
 
 		[ForeignKey("Department")]
-		public string? DepartmentId { get; set; }
+		public string DepartmentId { get; set; } = string.Empty;
 		public Department? Department { get; set; }
 
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
