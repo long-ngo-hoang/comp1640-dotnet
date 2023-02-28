@@ -11,7 +11,7 @@ namespace comp1640_dotnet.Models
 		public User? User { get; set; }
 
 		[ForeignKey("Idea")]
-		public string? IdeaId { get; set; }
+		public string IdeaId { get; set; } = string.Empty;
 		public Idea? Idea { get; set; }
 
 		[ForeignKey("Comment")]
@@ -22,5 +22,6 @@ namespace comp1640_dotnet.Models
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		public string Description { get; set; } = string.Empty;
+		public bool IsRead { get; set; }
 	}
 }
