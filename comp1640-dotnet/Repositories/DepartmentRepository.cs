@@ -99,5 +99,21 @@ namespace comp1640_dotnet.Repositories
 
 			return departmentResponse;
 		}
+
+		public async Task<Department?> RemoveDepartment(string idDepartment)
+		{
+			var result = await dbContext.Departments
+							 .SingleOrDefaultAsync(e => e.Id == idDepartment);
+
+			if (result == null)
+			{
+				return null;
+			}
+
+			dbContext.Departments.Remove(result);
+			await dbContext.SaveChangesAsync();
+
+			return result;
+		}
 	}
 }

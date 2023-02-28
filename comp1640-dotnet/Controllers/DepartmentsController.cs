@@ -56,5 +56,16 @@ namespace comp1640_dotnet.Controllers
 			}
 			return Ok("Update successful department");
 		}
+
+		[HttpDelete("{id}")]
+		public async Task<ActionResult<Department>> RemoveDocument(string id)
+		{
+			var result = await departmentRepos.RemoveDepartment(id);
+			if (result == null)
+			{
+				return BadRequest("Department not found");
+			}
+			return Ok("Delete successful Department");
+		}
 	}
 }
