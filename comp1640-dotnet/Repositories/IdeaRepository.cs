@@ -146,9 +146,6 @@ namespace comp1640_dotnet.Repositories
 
 			if (result != null)
 			{
-				dbContext.Reactions?.RemoveRange(result.Reactions);
-				dbContext.Comments?.RemoveRange(result.Comments);
-				dbContext.Documents?.RemoveRange(result.Documents);
 				dbContext.Ideas.Remove(result);
 				await dbContext.SaveChangesAsync();
 			}
