@@ -26,17 +26,20 @@ namespace comp1640_dotnet.Repositories
 		private static readonly int pageSize = 5;
 		private readonly ConvertFactory convertFactory;
 		private readonly IEmailService emailService;
+		private readonly INotificationRepository notificationRepository;
 
 
 		public IdeaRepository(ApplicationDbContext _context, 
-			IConfiguration _configuration, 
-			ConvertFactory _convertFactory, 
-			IEmailService _emailService)
+			IConfiguration _configuration,
+			ConvertFactory _convertFactory,
+			IEmailService _emailService,
+			INotificationRepository _notificationRepository)
 		{
 			dbContext = _context;
 			configuration = _configuration;
 			convertFactory = _convertFactory;
 			emailService = _emailService;
+			notificationRepository = _notificationRepository;
 		}
 
 		public async Task<IdeaResponse> CreateIdea(IdeaRequest idea)
@@ -68,6 +71,9 @@ namespace comp1640_dotnet.Repositories
 				Description = result.Entity.Description,
 				IsAnonymous = result.Entity.IsAnonymous
 			};
+
+			notificationRepository.CreateNotification(idea.UserId, result.Entity.Id,
+				null, "The staff in the department just created a new idea.");
 
 			emailService.SendEmail("longnhgcd191143@fpt.edu.vn", "Your employee just posted an idea");
 			return ideaResponse;
