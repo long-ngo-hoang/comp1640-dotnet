@@ -14,11 +14,15 @@ namespace comp1640_dotnet.Repositories
 	{
 		private readonly ApplicationDbContext dbContext;
 		private readonly IEmailService emailService;
+		private readonly INotificationRepository notificationRepository;
 
-		public CommentRepository(ApplicationDbContext context, IEmailService _emailService)
+		public CommentRepository(ApplicationDbContext context,
+			IEmailService _emailService,
+			INotificationRepository _notificationRepository)
 		{
 			dbContext = context;
 			emailService = _emailService;
+			notificationRepository = _notificationRepository;
 		}
 
 		public async Task<CommentResponse> CreateComment(CommentRequest comment)
@@ -29,6 +33,8 @@ namespace comp1640_dotnet.Repositories
 				Content = comment.Content,
 				IsAnonymous = comment.IsAnonymous
 			};
+
+			var ideaInDb = dbContext.Ideas.Include(u => u.User).SingleOrDefault(i => i.Id == comment.IdeaId);
 
 			var result = await dbContext.Comments.AddAsync(commentToCreate);
 			await dbContext.SaveChangesAsync();
@@ -44,9 +50,8 @@ namespace comp1640_dotnet.Repositories
 				IsAnonymous = result.Entity.IsAnonymous
 			};
 
-			var ideaInDb = await dbContext.Ideas
-				.Include(u => u.User)
-				.SingleOrDefaultAsync(i => i.Id == result.Entity.IdeaId);
+			notificationRepository.CreateNotification(ideaInDb.UserId, 
+				null, result.Entity.Id, "Your ideas have new comments.");
 
 			emailService.SendEmail(ideaInDb.User.Email, "Your idea has a new comment.");
 
