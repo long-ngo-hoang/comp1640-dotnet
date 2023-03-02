@@ -5,24 +5,29 @@ using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Security.Claims;
 
 namespace comp1640_dotnet.Repositories
 {
 	public class ReactionRepository : IReactionRepository
 	{
 		private readonly ApplicationDbContext dbContext;
+		private readonly IHttpContextAccessor httpContextAccessor;
 
-		public ReactionRepository(ApplicationDbContext context)
+		public ReactionRepository(ApplicationDbContext context, IHttpContextAccessor _httpContextAccessor)
 		{
 			dbContext = context;
+			httpContextAccessor = _httpContextAccessor;
 		}
 
 		public async Task<ReactionResponse> CreateReaction(ReactionRequest reaction)
 		{
+			var userId = httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			Reaction reactionToCreate = new()
 			{
 				IdeaId = reaction.IdeaId,
-				UserId = reaction.UserId,
+				UserId = userId,
 				Name = reaction.Name
 			};
 
@@ -33,10 +38,10 @@ namespace comp1640_dotnet.Repositories
 			{
 				Id = result.Entity.Id,
 				IdeaId = result.Entity.IdeaId,
-				UserId = result.Entity.UserId,
 				CreatedAt = result.Entity.CreatedAt,
 				UpdatedAt = result.Entity.UpdatedAt,
-				Name = result.Entity.Name
+				Name = result.Entity.Name,
+				Author = result.Entity.Name
 			};
 			return reactionResponse;
 		}
@@ -50,7 +55,6 @@ namespace comp1640_dotnet.Repositories
 			{
 				dbContext.Reactions.Remove(result);
 				await dbContext.SaveChangesAsync();
-
 			}
 			return result;
 		}

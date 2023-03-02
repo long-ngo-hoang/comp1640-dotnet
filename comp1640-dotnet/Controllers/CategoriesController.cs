@@ -12,6 +12,7 @@ namespace comp1640_dotnet.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
+	[Authorize]
 	public class CategoriesController : ControllerBase
 	{
 		private readonly ICategoryRepository categoryRepos;
@@ -40,6 +41,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Quality Assurance Manager")]
 		public async Task<ActionResult<CategoryResponse>> CreateCategory(CategoryRequest category)
 		{
 			var result = await categoryRepos.CreateCategory(category);
@@ -47,6 +49,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpDelete("{id}")]
+		[Authorize(Roles = "Quality Assurance Manager")]
 		public async Task<ActionResult<Category>> RemoveCategory(string id)
 		{
 			var result = await categoryRepos.RemoveCategory(id);
@@ -64,6 +67,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPut("{id}")]
+		[Authorize(Roles = "Quality Assurance Manager")]
 		public async Task<ActionResult<CategoryResponse>> UpdateCategory(string id, CategoryRequest category)
 		{
 			var result = await categoryRepos.UpdateCategory(id, category);

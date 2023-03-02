@@ -12,6 +12,7 @@ namespace comp1640_dotnet.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
+	[Authorize]
 	public class ReactionsController : ControllerBase
 	{
 		private readonly IReactionRepository reactionRepos;
@@ -20,7 +21,6 @@ namespace comp1640_dotnet.Controllers
 		{
 			this.reactionRepos = _reactionRepos;
 		}
-
 
 		[HttpPost]
 		public async Task<ActionResult<ReactionResponse>> CreateReaction(ReactionRequest reaction)

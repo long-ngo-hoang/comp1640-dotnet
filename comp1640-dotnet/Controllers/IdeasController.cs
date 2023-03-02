@@ -9,23 +9,35 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.DTOs.Requests;
+using System.Security.Claims;
+using comp1640_dotnet.Services;
+using comp1640_dotnet.Services.Interfaces;
 
 namespace comp1640_dotnet.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
+	[Authorize]
 	public class IdeasController : ControllerBase
 	{
-		private readonly IIdeaRepository ideaRepos;
+		private readonly IIdeaRepository ideaRepos;		
+
 		public IdeasController(IIdeaRepository _ideaRepos)
 		{
-			this.ideaRepos = _ideaRepos;
+			ideaRepos = _ideaRepos;
 		}
 
 		[HttpGet]
 		public async Task<ActionResult<AllIdeasResponse>> GetIdeas(int pageIndex = 1, string? nameIdea = null)
 		{
 			var result = await ideaRepos.GetIdeas(pageIndex, nameIdea);
+			return Ok(result);
+		}
+
+		[HttpGet, Route("UserId")]
+		public async Task<ActionResult<AllIdeasResponse>> GetIdeasByUserId(int pageIndex = 1, string? nameIdea = null)
+		{
+			var result = await ideaRepos.GetIdeasByUserId(pageIndex, nameIdea);
 			return Ok(result);
 		}
 
@@ -40,14 +52,15 @@ namespace comp1640_dotnet.Controllers
 			return Ok(result);
 		}
 
-		[HttpPost]
+		[HttpPost, Authorize(Roles = "Staff")]
 		public async Task<ActionResult<IdeaResponse>> CreateIdea(IdeaRequest idea)
 		{
 			var result = await ideaRepos.CreateIdea(idea);
+
 			return Ok(result);
 		}
 
-		[HttpDelete("{id}")]
+		[HttpDelete("{id}"), Authorize(Roles = "Staff")]
 		public async Task<ActionResult<Idea>> RemoveIdea(string id)
 		{
 			var result = await ideaRepos.RemoveIdea(id);
@@ -58,9 +71,9 @@ namespace comp1640_dotnet.Controllers
 			return Ok();
 		}
 
-		[HttpPut("{id}")]
+		[HttpPut("{id}"), Authorize(Roles = "Staff")]
 		public async Task<ActionResult<IdeaResponse>> UpdateIdea(string id, IdeaRequest idea)
-		{
+		{		
 			var result = await ideaRepos.UpdateIdea(id, idea);
 			if (result == null)
 			{

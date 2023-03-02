@@ -5,8 +5,6 @@ namespace comp1640_dotnet.DTOs.Requests
 {
 	public class CommentRequest
 	{
-		public string UserId { get; set; } = string.Empty;
-
 		public string IdeaId { get; set; } = string.Empty;
 
 		public string Content { get; set; } = string.Empty;
