@@ -12,6 +12,7 @@ namespace comp1640_dotnet.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
+	[Authorize]
 	public class DepartmentsController : ControllerBase
 	{
 		private readonly IDepartmentRepository departmentRepos;

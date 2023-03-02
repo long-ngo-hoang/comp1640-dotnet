@@ -12,6 +12,7 @@ namespace comp1640_dotnet.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
+	[Authorize]
 	public class DocumentsController : ControllerBase
 	{
 		private readonly IDocumentRepository documentRepos;
@@ -40,6 +41,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "Staff")]
 		public async Task<ActionResult<DocumentResponse>> CreateDocument(DocumentRequest document)
 		{
 			var result = await documentRepos.CreateDocument(document);
@@ -47,6 +49,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpDelete("{id}")]
+		[Authorize(Roles = "Staff")]
 		public async Task<ActionResult<Document>> RemoveDocument(string id)
 		{
 			var result = await documentRepos.RemoveDocument(id);
@@ -58,6 +61,7 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPut("{id}")]
+		[Authorize(Roles = "Staff")]
 		public async Task<ActionResult<DocumentResponse>> UpdateDocument(string id, DocumentRequest document)
 		{
 			var result = await documentRepos.UpdateDocument(id, document);

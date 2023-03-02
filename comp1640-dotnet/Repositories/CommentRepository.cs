@@ -7,6 +7,7 @@ using comp1640_dotnet.Services;
 using comp1640_dotnet.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Security.Claims;
 
 namespace comp1640_dotnet.Repositories
 {
@@ -15,21 +16,26 @@ namespace comp1640_dotnet.Repositories
 		private readonly ApplicationDbContext dbContext;
 		private readonly IEmailService emailService;
 		private readonly INotificationRepository notificationRepository;
+		private readonly IHttpContextAccessor httpContextAccessor;
 
 		public CommentRepository(ApplicationDbContext context,
 			IEmailService _emailService,
-			INotificationRepository _notificationRepository)
+			INotificationRepository _notificationRepository,
+			IHttpContextAccessor _httpContextAccessor)
 		{
 			dbContext = context;
 			emailService = _emailService;
 			notificationRepository = _notificationRepository;
+			httpContextAccessor = _httpContextAccessor;
 		}
 
 		public async Task<CommentResponse> CreateComment(CommentRequest comment)
 		{
+			var userId = httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			Comment commentToCreate = new() {
 				IdeaId = comment.IdeaId,
-				UserId = comment.UserId,
+				UserId = userId,
 				Content = comment.Content,
 				IsAnonymous = comment.IsAnonymous
 			};
@@ -42,12 +48,12 @@ namespace comp1640_dotnet.Repositories
 			CommentResponse commentResponse = new()
 			{
 				Id = result.Entity.Id,
-				UserId = result.Entity.UserId,
 				IdeaId = result.Entity.IdeaId,
 				CreatedAt = result.Entity.CreatedAt,
 				UpdatedAt = result.Entity.UpdatedAt,
 				Content = result.Entity.Content,
-				IsAnonymous = result.Entity.IsAnonymous
+				IsAnonymous = result.Entity.IsAnonymous,
+				Author = result.Entity.Content
 			};
 
 			notificationRepository.CreateNotification(ideaInDb.UserId, 
@@ -92,12 +98,12 @@ namespace comp1640_dotnet.Repositories
 
 			await dbContext.SaveChangesAsync();
 			commentResponse.Id = commentInDb.Id;
-			commentResponse.UserId = commentInDb.UserId;
 			commentResponse.IdeaId = commentInDb.IdeaId;
 			commentResponse.CreatedAt = commentInDb.CreatedAt;
 			commentResponse.UpdatedAt = commentInDb.UpdatedAt;
 			commentResponse.Content = commentInDb.Content;
 			commentResponse.IsAnonymous = commentInDb.IsAnonymous;
+			commentResponse.Author = commentInDb.Content;
 
 			return commentResponse;
 		}

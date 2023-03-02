@@ -12,6 +12,7 @@ namespace comp1640_dotnet.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
+	[Authorize(Roles = "Administrator")]
 	public class AcademicYearsController : ControllerBase
 	{
 		private readonly IAcademicYearRepository academicYearRepos;

@@ -7,6 +7,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 	public interface IIdeaRepository
 	{
 		Task<AllIdeasResponse> GetIdeas(int pageIndex, string? nameIdea);
+		Task<AllIdeasResponse> GetIdeasByUserId(int pageIndex, string? nameIdea);
 		Task<IdeaResponse> GetIdea(string idIdea);
 		Task<IdeaResponse> CreateIdea(IdeaRequest idea);
 		Task<Idea> RemoveIdea (string idIdea);

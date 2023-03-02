@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using comp1640_dotnet.Factory;
 using comp1640_dotnet.Services.Interfaces;
+using System.Security.Claims;
 
 namespace comp1640_dotnet.Repositories
 {
@@ -27,28 +28,34 @@ namespace comp1640_dotnet.Repositories
 		private readonly ConvertFactory convertFactory;
 		private readonly IEmailService emailService;
 		private readonly INotificationRepository notificationRepository;
-
+		private readonly IHttpContextAccessor httpContextAccessor;
 
 		public IdeaRepository(ApplicationDbContext _context, 
 			IConfiguration _configuration,
 			ConvertFactory _convertFactory,
 			IEmailService _emailService,
-			INotificationRepository _notificationRepository)
+			INotificationRepository _notificationRepository,
+			IHttpContextAccessor _httpContextAccessor)
 		{
 			dbContext = _context;
 			configuration = _configuration;
 			convertFactory = _convertFactory;
 			emailService = _emailService;
 			notificationRepository = _notificationRepository;
+			httpContextAccessor = _httpContextAccessor;
 		}
 
 		public async Task<IdeaResponse> CreateIdea(IdeaRequest idea)
 		{
+			var academicYearId = httpContextAccessor.HttpContext.User.FindFirstValue("AcademicYearId");
+			var departmentId = httpContextAccessor.HttpContext.User.FindFirstValue("DepartmentId");
+			var userId = httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			Idea ideaToCreate = new()
 			{
-				AcademicYearId = idea.AcademicYearId,
-				DepartmentId = idea.DepartmentId,
-				UserId = idea.UserId,
+				AcademicYearId = academicYearId,
+				DepartmentId = departmentId,
+				UserId = userId,
 				CategoryId = idea.CategoryId,
 				Name = idea.Name,
 				Description = idea.Description,
@@ -61,21 +68,38 @@ namespace comp1640_dotnet.Repositories
 			IdeaResponse ideaResponse = new()
 			{
 				Id = result.Entity.Id,
-				AcademicYearId = result.Entity.AcademicYearId,
-				DepartmentId = idea.DepartmentId,
-				UserId = result.Entity.UserId,
 				CategoryId = result.Entity.CategoryId,
 				CreatedAt = result.Entity.CreatedAt,
 				UpdatedAt = result.Entity.UpdatedAt,
 				Name = result.Entity.Name,
 				Description = result.Entity.Description,
-				IsAnonymous = result.Entity.IsAnonymous
+				IsAnonymous = result.Entity.IsAnonymous,
+				Author = result.Entity.Name
 			};
 
-			notificationRepository.CreateNotification(idea.UserId, result.Entity.Id,
+			var departmentInDb = dbContext.Departments
+				.Include(u => u.Users)
+				.SingleOrDefault(d => d.Id == departmentId);
+
+			User QAManager = null;
+
+			foreach (var item in departmentInDb.Users)
+			{
+				var QAManagerInDb = dbContext.UserRoles
+					.Include(r => r.Role)
+					.Include(u => u.User)
+					.SingleOrDefault(u => u.UserId == item.Id && u.Role.Name == "Quality Assurance Manager");
+
+				if(QAManager != null)
+				{
+					QAManager = QAManagerInDb.User;
+				}
+			}
+
+			notificationRepository.CreateNotification(QAManager.Id, result.Entity.Id,
 				null, "The staff in the department just created a new idea.");
 
-			emailService.SendEmail("longnhgcd191143@fpt.edu.vn", "Your employee just posted an idea");
+			emailService.SendEmail(QAManager.Email, "Your employee just posted an idea");
 			return ideaResponse;
 		}
 
@@ -95,15 +119,13 @@ namespace comp1640_dotnet.Repositories
 				IdeaResponse ideaResponse = new()
 				{
 					Id = ideaInDb.Id,
-					AcademicYearId = ideaInDb.AcademicYearId,
-					DepartmentId = ideaInDb.DepartmentId,
-					UserId = ideaInDb.UserId,
 					CategoryId = ideaInDb.CategoryId,
 					CreatedAt = ideaInDb.CreatedAt,
 					UpdatedAt = ideaInDb.UpdatedAt,
 					Name = ideaInDb.Name,
 					Description = ideaInDb.Description,
 					IsAnonymous = ideaInDb.IsAnonymous,
+					Author = ideaInDb.Name,
 
 					Reactions = convertFactory.ConvertListReactions(ideaInDb.Reactions),
 					Comments = convertFactory.ConvertListComments(ideaInDb.Comments),
@@ -122,14 +144,15 @@ namespace comp1640_dotnet.Repositories
 				ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
 				 .Include(i => i.Reactions)
 				 .Include(i => i.Comments)
-				 .Include(i => i.Documents).Where(i => i.Name.Contains(nameIdea)).ToListAsync();
+				 .Include(i => i.Documents).Where(i => i.Name.Contains(nameIdea))
+				 .ToListAsync();
 			}
 			else
 			{
 				ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
-				 .Include(i => i.Reactions)
-				 .Include(i => i.Comments)
-				 .Include(i => i.Documents).ToListAsync();
+					.Include(i => i.Reactions)
+		 			.Include(i => i.Comments)
+					.Include(i => i.Documents).ToListAsync();
 			}
 
 			AllIdeasResponse allIdeasResponse = new()
@@ -144,11 +167,13 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<Idea> RemoveIdea(string idIdea)
 		{
+			var userId = httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			var result = await dbContext.Ideas
 				.Include(r => r.Reactions)
 				.Include(c => c.Comments)
 				.Include(d => d.Documents)
-				.SingleOrDefaultAsync(e => e.Id == idIdea);
+				.SingleOrDefaultAsync(e => e.Id == idIdea && e.UserId == userId);
 
 			if (result != null)
 			{
@@ -160,14 +185,15 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<IdeaResponse?> UpdateIdea(string idIdea, IdeaRequest idea)
 		{
+			var userId = httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			var ideaInDb = await dbContext.Ideas
 				.Include(i => i.Reactions)
 				.Include(i => i.Comments)
 				.Include(i => i.Documents)
-				.SingleOrDefaultAsync(e => e.Id == idIdea);
+				.SingleOrDefaultAsync(e => e.Id == idIdea && e.UserId == userId);
 
 			IdeaResponse? ideaResponse = new();
-
 
 			if (ideaInDb == null)
 			{
@@ -181,21 +207,18 @@ namespace comp1640_dotnet.Repositories
 				await dbContext.SaveChangesAsync();
 
 				ideaResponse.Id = ideaInDb.Id;
-				ideaResponse.AcademicYearId = ideaInDb.AcademicYearId;
-				ideaResponse.DepartmentId = ideaInDb.DepartmentId;
-				ideaResponse.UserId = ideaInDb.UserId;
 				ideaResponse.CategoryId = ideaInDb.CategoryId;
 				ideaResponse.CreatedAt = ideaInDb.CreatedAt;
 				ideaResponse.UpdatedAt = ideaInDb.UpdatedAt;
 				ideaResponse.Name = ideaInDb.Name;
 				ideaResponse.Description = ideaInDb.Description;
 				ideaResponse.IsAnonymous = ideaInDb.IsAnonymous;
+				ideaResponse.Author = ideaInDb.Name;
 
 				ideaResponse.Reactions = convertFactory.ConvertListReactions(ideaInDb.Reactions);
 				ideaResponse.Comments = convertFactory.ConvertListComments(ideaInDb.Comments);
 				ideaResponse.Documents = convertFactory.ConvertListDocuments(ideaInDb.Documents);
 			}
-
 			return ideaResponse;
 		}
 
@@ -208,7 +231,7 @@ namespace comp1640_dotnet.Repositories
 
 			IAmazonS3 client = new AmazonS3Client(amazonAccessKey, amazonSecretKey, RegionEndpoint.APSoutheast1);
 
-			GetPreSignedUrlRequest request = new GetPreSignedUrlRequest
+			GetPreSignedUrlRequest request = new()
 			{
 				BucketName = amazonBucketName,
 				Key = fileName + ".jpg",
@@ -218,12 +241,47 @@ namespace comp1640_dotnet.Repositories
 
 			string preSignedUrl = client.GetPreSignedURL(request);
 
-			PreSignedUrlResponse preSignedUrlResponse = new PreSignedUrlResponse
+			PreSignedUrlResponse preSignedUrlResponse = new()
 			{
 				FileName = fileName + ".jpg",
 				PreSignedUrl = preSignedUrl,
 			};
 			return preSignedUrlResponse;
+		}
+
+		public async Task<AllIdeasResponse> GetIdeasByUserId(int pageIndex, string? nameIdea)
+		{
+			var userId = httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
+			var ideasInDb = new List<Idea>();
+
+			if (nameIdea != null)
+			{
+				ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
+				 .Include(i => i.Reactions)
+				 .Include(i => i.Comments)
+				 .Include(i => i.Documents)
+				 .Where(i => i.Name.Contains(nameIdea) && i.UserId == userId)
+				 .ToListAsync();
+			}
+			else
+			{
+				ideasInDb = await dbContext.Ideas.Skip((pageIndex - 1) * pageSize).Take(pageSize)
+					.Include(i => i.Reactions)
+		 			.Include(i => i.Comments)
+					.Include(i => i.Documents)
+					.Where(i => i.UserId == userId)
+					.ToListAsync();
+			}
+
+			AllIdeasResponse allIdeasResponse = new()
+			{
+				PageIndex = pageIndex,
+				TotalPage = (int)Math.Ceiling((double)dbContext.Ideas.Count() / pageSize),
+				Ideas = convertFactory.ConvertListIdeas(ideasInDb)
+			};
+
+			return allIdeasResponse;
 		}
 	}
 }

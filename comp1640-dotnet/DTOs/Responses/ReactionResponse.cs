@@ -7,12 +7,12 @@ namespace comp1640_dotnet.DTOs.Responses
 	public class ReactionResponse
 	{
 		public string Id { get; set; } = string.Empty;
-		public string UserId { get; set; } = string.Empty;
 		public string IdeaId { get; set; } = string.Empty;
 
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
 
 		public string Name { get; set; } = string.Empty;
+		public string Author { get; set; } = string.Empty;
 	}
 }

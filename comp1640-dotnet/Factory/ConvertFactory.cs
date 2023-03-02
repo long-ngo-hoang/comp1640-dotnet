@@ -11,15 +11,13 @@ namespace comp1640_dotnet.Factory
 				.Select(x => new IdeaResponse()
 				{
 					Id = x.Id,
-					AcademicYearId = x.AcademicYearId,
-					DepartmentId = x.DepartmentId,
-					UserId = x.UserId,
 					CategoryId = x.CategoryId,
 					CreatedAt = x.CreatedAt,
 					UpdatedAt = x.UpdatedAt,
 					Name = x.Name,
 					Description = x.Description,
 					IsAnonymous = x.IsAnonymous,
+					Author = x.Name,
 					Reactions = ConvertListReactions(x.Reactions),
 					Comments = ConvertListComments(x.Comments),
 					Documents = ConvertListDocuments(x.Documents)
@@ -40,11 +38,12 @@ namespace comp1640_dotnet.Factory
 					.Select(x => new ReactionResponse()
 					{
 						Id = x.Id,
-						UserId = x.UserId,
 						IdeaId = x.IdeaId,
 						CreatedAt = x.CreatedAt,
 						UpdatedAt = x.UpdatedAt,
-						Name = x.Name
+						Name = x.Name,
+						Author = x.Name,
+
 					}).ToList();
 
 				return reactions;
@@ -85,12 +84,12 @@ namespace comp1640_dotnet.Factory
 					.Select(x => new CommentResponse()
 					{
 						Id = x.Id,
-						UserId = x.UserId,
 						IdeaId = x.IdeaId,
 						CreatedAt = x.CreatedAt,
 						UpdatedAt = x.UpdatedAt,
 						Content = x.Content,
-						IsAnonymous = x.IsAnonymous
+						IsAnonymous = x.IsAnonymous,
+						Author = x.Content,
 					}).ToList();
 
 				return comments;
