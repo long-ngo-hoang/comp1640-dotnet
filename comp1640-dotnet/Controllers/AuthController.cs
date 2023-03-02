@@ -1,6 +1,7 @@
 ﻿using comp1640_dotnet.Data;
 using comp1640_dotnet.DTOs.Requests;
 using comp1640_dotnet.Models;
+using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,43 +16,54 @@ namespace comp1640_dotnet.Controllers
 	[ApiController]
 	public class AuthController : ControllerBase
 	{
-		private readonly ApplicationDbContext? dbContext;
-		private readonly IConfiguration configuration;
+		private readonly ApplicationDbContext? _dbContext;
+		private readonly IConfiguration _configuration;
+		private readonly IProfileRepository _profileRepository;
 
-		public AuthController(ApplicationDbContext? dbContext, IConfiguration configuration)
+		public AuthController(ApplicationDbContext? dbContext, IConfiguration configuration, IProfileRepository profileRepository)
 		{
-			this.dbContext = dbContext;
-			this.configuration = configuration;
+			_dbContext = dbContext;
+			_configuration = configuration;
+			_profileRepository = profileRepository;
 		}
 
 		[HttpPost("Register")]
 		public async Task<ActionResult<User>> Register(UserRegisterRequest userRegisterRequest)
 		{
-			var hmac = new HMACSHA512();
-			User user = new ()
+			var emailInDb = _dbContext.Users
+				.SingleOrDefault(u => u.Email.ToLower() == userRegisterRequest.Email.ToLower());
+
+			if (emailInDb == null)
 			{
-				UserName = userRegisterRequest.Email,
-				Email = userRegisterRequest.Email,
-				DepartmentId = userRegisterRequest.DepartmentId,
-				PasswordSalt = PasswordSalt(hmac),
-				PasswordHash = PasswordHash(userRegisterRequest.Password, hmac),
-			};
+				var hmac = new HMACSHA512();
+				User user = new()
+				{
+					UserName = userRegisterRequest.Email,
+					Email = userRegisterRequest.Email,
+					DepartmentId = userRegisterRequest.DepartmentId,
+					PasswordSalt = PasswordSalt(hmac),
+					PasswordHash = PasswordHash(userRegisterRequest.Password, hmac),
+				};
 
+				var result = _dbContext.Users.Add(user);
 
-			var result = dbContext.Users.Add(user);
+				if (result != null)
+				{
+					UserRole userRole = new()
+					{
+						UserId = result.Entity.Id,
+						RoleId = "c7b013f0-5201-4317-abd8-c878f91b1111"
+					};
+					var result1 = await _dbContext.UserRoles.AddAsync(userRole);
+					var result2 = await _profileRepository.CreateProfile(result.Entity.Id);
+					await _dbContext.SaveChangesAsync();
 
-			UserRole userRole = new()
-			{
-				UserId = result.Entity.Id,
-				RoleId = "c7b013f0-5201-4317-abd8-c878f91b1111"
-			};
-			var result1 = dbContext.UserRoles.Add(userRole);
-
-			await dbContext.SaveChangesAsync();
-
-			return Ok(user);
+					return Ok("Account successfully created");
+				}
+				return BadRequest("Can't create an account");
+			}
+			return BadRequest("This email is already registered.");
 		}
-
 		private static byte[] PasswordSalt(HMACSHA512 hmac)
 		{
 			return hmac.Key;
@@ -65,7 +77,7 @@ namespace comp1640_dotnet.Controllers
 		[HttpPost("Login")]
 		public async Task<ActionResult<User>> Login(UserLoginRequest userLoginRequest)
 		{
-			var user = dbContext.Users
+			var user = _dbContext.Users
 				.FirstOrDefault(u => u.Email == userLoginRequest.Email);
 
 			if (user == null)
@@ -77,7 +89,7 @@ namespace comp1640_dotnet.Controllers
 				return BadRequest("Wrong Password");
 			}
 
-			var refreshTokenInDB = dbContext.RefreshTokens.SingleOrDefault(u => u.UserId == user.Id);
+			var refreshTokenInDB = _dbContext.RefreshTokens.SingleOrDefault(u => u.UserId == user.Id);
 
 			string token = CreateToken(user);
 
@@ -85,7 +97,7 @@ namespace comp1640_dotnet.Controllers
 
 			if(refreshTokenInDB == null)
 			{
-				dbContext.RefreshTokens.Add(refreshToken);
+				_dbContext.RefreshTokens.Add(refreshToken);
 			}
 			else
 			{
@@ -93,7 +105,7 @@ namespace comp1640_dotnet.Controllers
 				refreshTokenInDB.TokenCreated = refreshToken.TokenCreated;
 				refreshTokenInDB.TokenExpires = refreshToken.TokenExpires;
 			}
-			await dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
 			SetRefreshToken(refreshToken);
 
@@ -125,12 +137,12 @@ namespace comp1640_dotnet.Controllers
 
 		private string CreateToken(User user)
 		{
-			var userRoleInDb = dbContext.UserRoles
+			var userRoleInDb = _dbContext.UserRoles
 				.Include(r => r.Role)
 				.Include(u => u.User)
 				.SingleOrDefault(u => u.UserId == user.Id);
 
-			var academicYearInDb = dbContext.AcademicYears.OrderByDescending(p => p.StartDate).Last();
+			var academicYearInDb = _dbContext.AcademicYears.OrderByDescending(p => p.StartDate).Last();
 			var departmentInDb = userRoleInDb.User.DepartmentId;
 
 			List<Claim> claims = new List<Claim>
@@ -143,7 +155,7 @@ namespace comp1640_dotnet.Controllers
 			};
 
 			var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-				configuration.GetSection("AppSettings:Token").Value));
+				_configuration.GetSection("AppSettings:Token").Value));
 
 			var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
@@ -169,7 +181,7 @@ namespace comp1640_dotnet.Controllers
 		{
 			var refreshToken = Request.Cookies["rf"];
 
-			var refreshTokenInDb = dbContext.RefreshTokens.Include(u => u.User)
+			var refreshTokenInDb = _dbContext.RefreshTokens.Include(u => u.User)
 				.FirstOrDefault(t => t.Token == refreshToken);
 
 			if (refreshTokenInDb == null)
@@ -188,7 +200,7 @@ namespace comp1640_dotnet.Controllers
 			refreshTokenInDb.Token = newRefreshToken.Token;
 			refreshTokenInDb.TokenCreated = newRefreshToken.TokenCreated;
 			refreshTokenInDb.TokenExpires = newRefreshToken.TokenExpires;
-			await dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
 			SetRefreshToken(newRefreshToken);
 			
