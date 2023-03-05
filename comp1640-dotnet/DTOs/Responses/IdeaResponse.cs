@@ -15,6 +15,7 @@ namespace comp1640_dotnet.DTOs.Responses
 		public string? Name { get; set; }
 		public string? Description { get; set; }
 		public bool IsAnonymous { get; set; }
+		public bool IsLatest { get; set; }
 		public string Author { get; set; } = string.Empty;
 
 		public List<ReactionResponse>? Reactions { get; set; }

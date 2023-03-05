@@ -11,18 +11,18 @@ namespace comp1640_dotnet.Repositories
 {
 	public class ReactionRepository : IReactionRepository
 	{
-		private readonly ApplicationDbContext dbContext;
-		private readonly IHttpContextAccessor httpContextAccessor;
+		private readonly ApplicationDbContext _dbContext;
+		private readonly IHttpContextAccessor _httpContextAccessor;
 
-		public ReactionRepository(ApplicationDbContext context, IHttpContextAccessor _httpContextAccessor)
+		public ReactionRepository(ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
 		{
-			dbContext = context;
-			httpContextAccessor = _httpContextAccessor;
+			_dbContext = dbContext;
+			_httpContextAccessor = httpContextAccessor;
 		}
 
-		public async Task<ReactionResponse> CreateReaction(ReactionRequest reaction)
+		public async Task<ReactionResponse?> CreateReaction(ReactionRequest reaction)
 		{
-			var userId = httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
 
 			Reaction reactionToCreate = new()
 			{
@@ -31,8 +31,13 @@ namespace comp1640_dotnet.Repositories
 				Name = reaction.Name
 			};
 
-			var result = await dbContext.Reactions.AddAsync(reactionToCreate);
-			await dbContext.SaveChangesAsync();
+			var result = await _dbContext.Reactions.AddAsync(reactionToCreate);
+			await _dbContext.SaveChangesAsync();
+
+			if(result == null)
+			{
+				return null;
+			}
 
 			ReactionResponse reactionResponse = new()
 			{
@@ -48,13 +53,13 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<Reaction> RemoveReaction(string idReaction)
 		{
-			var result = await dbContext.Reactions
+			var result = await _dbContext.Reactions
 							 .SingleOrDefaultAsync(e => e.Id == idReaction);
 
 			if (result != null)
 			{
-				dbContext.Reactions.Remove(result);
-				await dbContext.SaveChangesAsync();
+				_dbContext.Reactions.Remove(result);
+				await _dbContext.SaveChangesAsync();
 			}
 			return result;
 		}

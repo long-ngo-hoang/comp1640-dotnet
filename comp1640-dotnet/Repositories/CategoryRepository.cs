@@ -4,17 +4,16 @@ using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace comp1640_dotnet.Repositories
 {
 	public class CategoryRepository : ICategoryRepository
 	{
-		private readonly ApplicationDbContext dbContext;
+		private readonly ApplicationDbContext _dbContext;
 
-		public CategoryRepository(ApplicationDbContext context)
+		public CategoryRepository(ApplicationDbContext dbContext)
 		{
-			dbContext = context;
+			_dbContext = dbContext;
 		}
 
 		public async Task<CategoryResponse> CreateCategory(CategoryRequest category)
@@ -23,8 +22,8 @@ namespace comp1640_dotnet.Repositories
 				Name = category.Name 
 			};
 
-			var result = await dbContext.Categories.AddAsync(categoryToCreate);
-			await dbContext.SaveChangesAsync();
+			var result = await _dbContext.Categories.AddAsync(categoryToCreate);
+			await _dbContext.SaveChangesAsync();
 
 			CategoryResponse categoryResponse = new()
 			{
@@ -39,7 +38,7 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<CategoryResponse?> GetCategory(string idCategory)
 		{
-			var categoryInDB = dbContext.Categories.SingleOrDefault(i => i.Id == idCategory);
+			var categoryInDB = _dbContext.Categories.SingleOrDefault(i => i.Id == idCategory);
 
 			if(categoryInDB == null)
 			{
@@ -57,12 +56,12 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<IEnumerable<Category>> GetCategories()
 		{
-			return await dbContext.Categories.ToListAsync();
+			return await _dbContext.Categories.ToListAsync();
 		}
 
 		public async Task<Category?> RemoveCategory(string idCategory)
 		{
-			var result = await dbContext.Categories.Include(i => i.Ideas)
+			var result = await _dbContext.Categories.Include(i => i.Ideas)
 							 .SingleOrDefaultAsync(e => e.Id == idCategory);
 
 			if(result == null)
@@ -75,8 +74,8 @@ namespace comp1640_dotnet.Repositories
 			}
 			else if (result != null && result.Ideas.Count() == 0)
 			{
-				dbContext.Categories.Remove(result);
-				await dbContext.SaveChangesAsync();
+				_dbContext.Categories.Remove(result);
+				await _dbContext.SaveChangesAsync();
 			}
 			return result;
 		}
@@ -85,7 +84,7 @@ namespace comp1640_dotnet.Repositories
 		{
 			CategoryResponse? categoryResponse = new();
 
-			var categoryInDb = await dbContext.Categories
+			var categoryInDb = await _dbContext.Categories
 							 .SingleOrDefaultAsync(e => e.Id == idCategory);
 
 			if (categoryInDb == null)
@@ -94,7 +93,8 @@ namespace comp1640_dotnet.Repositories
 			}
 
 			categoryInDb.Name = category.Name;
-			await dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
+
 			categoryResponse.Id = categoryInDb.Id;
 			categoryResponse.CreatedAt = categoryInDb.CreatedAt;
 			categoryResponse.UpdatedAt = categoryInDb.UpdatedAt;

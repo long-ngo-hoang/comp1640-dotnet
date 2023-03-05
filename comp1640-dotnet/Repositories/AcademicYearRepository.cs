@@ -6,19 +6,24 @@ using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Security.Claims;
 
 namespace comp1640_dotnet.Repositories
 {
 	public class AcademicYearRepository : IAcademicYearRepository
 	{
-		private readonly ApplicationDbContext dbContext;
-		private readonly ConvertFactory convertFactory;
-		private readonly int pageSize = 5;
+		private readonly ApplicationDbContext _dbContext;
+		private readonly ConvertFactory _convertFactory;
+		private readonly IHttpContextAccessor _httpContextAccessor;
+		private readonly int _pageSize = 5;
 
-		public AcademicYearRepository(ApplicationDbContext context, ConvertFactory _convertFactory)
+		public AcademicYearRepository(ApplicationDbContext dbContext,
+			ConvertFactory convertFactory,
+			IHttpContextAccessor httpContextAccessor)
 		{
-			dbContext = context;
-			convertFactory = _convertFactory;
+			_dbContext = dbContext;
+			_convertFactory = convertFactory;
+			_httpContextAccessor = httpContextAccessor;
 		}
 
 		public async Task<AcademicYearResponse> CreateAcademicYear(AcademicYearRequest academicYear)
@@ -31,8 +36,8 @@ namespace comp1640_dotnet.Repositories
 				FinalClosureDate = academicYear.FinalClosureDate
 			};
 
-			var result = await dbContext.AcademicYears.AddAsync(academicYearToCreate);
-			await dbContext.SaveChangesAsync();
+			var result = await _dbContext.AcademicYears.AddAsync(academicYearToCreate);
+			await _dbContext.SaveChangesAsync();
 
 			AcademicYearResponse academicYearResponse = new()
 			{
@@ -48,13 +53,13 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<AcademicYearResponse> GetAcademicYear(string idAcademicYear, int pageIndex)
 		{
-			var academicYearInDb = dbContext.AcademicYears
+			var academicYearInDb = _dbContext.AcademicYears
 				.Include(i => i.Ideas
-					.Skip((pageIndex - 1) * pageSize)
-					.Take(pageSize))
+					.Skip((pageIndex - 1) * _pageSize)
+					.Take(_pageSize))
 				.SingleOrDefault(i => i.Id == idAcademicYear);
 
-			int academicYearsCount = dbContext.Ideas
+			int academicYearsCount = _dbContext.Ideas
 				.Where(i => i.AcademicYearId == idAcademicYear)
 				.Count();
 
@@ -70,8 +75,8 @@ namespace comp1640_dotnet.Repositories
 				AllIdeas = new AllIdeasResponse()
 				{
 					PageIndex = pageIndex,
-					TotalPage = (int)Math.Ceiling((double)academicYearsCount / pageSize),
-					Ideas = convertFactory.ConvertListIdeas(academicYearInDb.Ideas)
+					TotalPage = (int)Math.Ceiling((double)academicYearsCount / _pageSize),
+					Ideas = _convertFactory.ConvertListIdeas(academicYearInDb.Ideas)
 				}
 			};
 			return academicYearResponse;
@@ -79,25 +84,25 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<IEnumerable<AcademicYear>> GetAcademicYears()
 		{
-			return await dbContext.AcademicYears.ToListAsync();
+			return await _dbContext.AcademicYears.ToListAsync();
 		}
 
 		public async Task<AcademicYear> RemoveAcademicYear(string idAcademicYear)
 		{
-			var result = await dbContext.AcademicYears
+			var result = await _dbContext.AcademicYears
 							 .SingleOrDefaultAsync(e => e.Id == idAcademicYear);
 
 			if (result != null)
 			{
-				dbContext.AcademicYears.Remove(result);
-				await dbContext.SaveChangesAsync();
+				_dbContext.AcademicYears.Remove(result);
+				await _dbContext.SaveChangesAsync();
 			}
 			return result;
 		}
 
 		public async Task<AcademicYearResponse?> UpdateAcademicYear(string idAcademicYear, AcademicYearRequest academicYear)
 		{
-			var academicYearInDb = await dbContext.AcademicYears
+			var academicYearInDb = await _dbContext.AcademicYears
 							 .SingleOrDefaultAsync(e => e.Id == idAcademicYear);
 
 			AcademicYearResponse academicYearResponse = new();
@@ -113,7 +118,7 @@ namespace comp1640_dotnet.Repositories
 				academicYearInDb.ClosureDate = academicYear.ClosureDate;
 				academicYearInDb.FinalClosureDate = academicYear.FinalClosureDate;
 
-				await dbContext.SaveChangesAsync();
+				await _dbContext.SaveChangesAsync();
 
 				academicYearResponse.Id = academicYearInDb.Id;
 				academicYearResponse.CreatedAt = academicYearInDb.CreatedAt;
@@ -125,6 +130,30 @@ namespace comp1640_dotnet.Repositories
 			}
 
 			return academicYearResponse;
+		}
+
+		public async Task<bool> CheckDeadlineForNewIdeas()
+		{
+			var academicYearId = _httpContextAccessor.HttpContext.User.FindFirstValue("AcademicYearId");
+			var academicYearInDb = _dbContext.AcademicYears.SingleOrDefault(a => a.Id == academicYearId);
+
+			if (academicYearInDb == null || academicYearInDb.ClosureDate < DateTime.UtcNow)
+			{
+				return false;
+			}
+			return true;
+		}
+
+		public async Task<bool> CheckDeadlineForNewComments()
+		{
+			var academicYearId = _httpContextAccessor.HttpContext.User.FindFirstValue("AcademicYearId");
+			var academicYearInDb = _dbContext.AcademicYears.SingleOrDefault(a => a.Id == academicYearId);
+
+			if (academicYearInDb == null || academicYearInDb.FinalClosureDate < DateTime.UtcNow)
+			{
+				return false;
+			}
+			return true;
 		}
 	}
 }

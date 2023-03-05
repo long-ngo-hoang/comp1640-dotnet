@@ -15,24 +15,24 @@ namespace comp1640_dotnet.Controllers
 	[Authorize]
 	public class DocumentsController : ControllerBase
 	{
-		private readonly IDocumentRepository documentRepos;
+		private readonly IDocumentRepository _documentRepos;
 
-		public DocumentsController(IDocumentRepository _documentRepos)
+		public DocumentsController(IDocumentRepository documentRepos)
 		{
-			this.documentRepos = _documentRepos;
+			_documentRepos = documentRepos;
 		}
 
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<Document>>> GetDocuments()
 		{
-			var result = await documentRepos.GetDocuments();
+			var result = await _documentRepos.GetDocuments();
 			return Ok(result);
 		}
 
 		[HttpGet("{id}")]
 		public async Task<ActionResult<DocumentResponse>> GetDocument(string id)
 		{
-			var result = await documentRepos.GetDocument(id);
+			var result = await _documentRepos.GetDocument(id);
 			if(result == null)
 			{
 				return BadRequest("Document not found");
@@ -44,7 +44,7 @@ namespace comp1640_dotnet.Controllers
 		[Authorize(Roles = "Staff")]
 		public async Task<ActionResult<DocumentResponse>> CreateDocument(DocumentRequest document)
 		{
-			var result = await documentRepos.CreateDocument(document);
+			var result = await _documentRepos.CreateDocument(document);
 			return Ok(result);
 		}
 
@@ -52,7 +52,7 @@ namespace comp1640_dotnet.Controllers
 		[Authorize(Roles = "Staff")]
 		public async Task<ActionResult<Document>> RemoveDocument(string id)
 		{
-			var result = await documentRepos.RemoveDocument(id);
+			var result = await _documentRepos.RemoveDocument(id);
 			if(result == null)
 			{
 				return BadRequest("Document not found");
@@ -64,7 +64,7 @@ namespace comp1640_dotnet.Controllers
 		[Authorize(Roles = "Staff")]
 		public async Task<ActionResult<DocumentResponse>> UpdateDocument(string id, DocumentRequest document)
 		{
-			var result = await documentRepos.UpdateDocument(id, document);
+			var result = await _documentRepos.UpdateDocument(id, document);
 			if (result == null)
 			{
 				return BadRequest("Document not found");
