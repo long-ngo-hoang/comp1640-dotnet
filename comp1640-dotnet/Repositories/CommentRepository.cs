@@ -36,7 +36,6 @@ namespace comp1640_dotnet.Repositories
 				UserId = userId,
 				Content = comment.Content,
 				IsAnonymous = comment.IsAnonymous,
-				IsLatest = true,
 			};
 
 			var author = _dbContext.Profiles.SingleOrDefault(p => p.UserId == userId);
@@ -49,8 +48,6 @@ namespace comp1640_dotnet.Repositories
 				return null;
 			};
 
-			DisableLatestCommentInDb(idea);
-
 			CommentResponse commentResponse = new()
 			{
 				Id = result.Entity.Id,
@@ -59,7 +56,6 @@ namespace comp1640_dotnet.Repositories
 				UpdatedAt = result.Entity.UpdatedAt,
 				Content = result.Entity.Content,
 				IsAnonymous = result.Entity.IsAnonymous,
-				IsLatest = result.Entity.IsLatest,
 				Author = author.FullName,
 			};
 
@@ -109,23 +105,9 @@ namespace comp1640_dotnet.Repositories
 			commentResponse.UpdatedAt = commentInDb.UpdatedAt;
 			commentResponse.Content = commentInDb.Content;
 			commentResponse.IsAnonymous = commentInDb.IsAnonymous;
-			commentResponse.IsLatest = commentInDb.IsLatest;
 			commentResponse.Author = commentInDb.Content;
 
 			return commentResponse;
-		}
-
-		private async void DisableLatestCommentInDb(Idea idea)
-		{
-			var latestComment = idea.Comments.OrderByDescending(i => i.CreatedAt)
-				.Where(c => c.IsLatest == true)
-				.ElementAtOrDefault(1);
-
-			if (latestComment != null)
-			{
-				latestComment.IsLatest = false;
-				await _dbContext.SaveChangesAsync();
-			}
 		}
 	}
 }

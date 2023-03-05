@@ -90,9 +90,6 @@ namespace comp1640_dotnet.Migrations
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsLatest")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -179,9 +176,6 @@ namespace comp1640_dotnet.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAnonymous")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsLatest")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")

@@ -11,7 +11,6 @@
 
 		public string Content { get; set; } = string.Empty;
 		public bool IsAnonymous { get; set; }
-		public bool IsLatest { get; set; }
 		public string Author { get; set; } = string.Empty;
 	}
 }
