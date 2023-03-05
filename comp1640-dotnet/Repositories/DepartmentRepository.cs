@@ -5,22 +5,19 @@ using comp1640_dotnet.Factory;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Xml.Linq;
 
 namespace comp1640_dotnet.Repositories
 {
 	public class DepartmentRepository : IDepartmentRepository
 	{
-		private readonly ApplicationDbContext dbContext;
-		private readonly ConvertFactory convertFactory;
-		private static readonly int pageSize = 5;
+		private readonly ApplicationDbContext _dbContext;
+		private readonly ConvertFactory _convertFactory;
+		private static readonly int _pageSize = 5;
 
-
-		public DepartmentRepository(ApplicationDbContext context, ConvertFactory _convertFactory)
+		public DepartmentRepository(ApplicationDbContext dbContext, ConvertFactory convertFactory)
 		{
-			dbContext = context;
-			convertFactory = _convertFactory;
+			_dbContext = dbContext;
+			_convertFactory = convertFactory;
 		}
 
 		public async Task<DepartmentResponse> CreateDepartment(DepartmentRequest department)
@@ -30,8 +27,8 @@ namespace comp1640_dotnet.Repositories
 				Name = department.Name 
 			};
 
-			var result = await dbContext.Departments.AddAsync(departmentToCreate);
-			await dbContext.SaveChangesAsync();
+			var result = await _dbContext.Departments.AddAsync(departmentToCreate);
+			await _dbContext.SaveChangesAsync();
 
 			DepartmentResponse departmentResponse = new()
 			{
@@ -46,16 +43,17 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<DepartmentResponse?> GetDepartment(string idDepartment, int pageIndex)
 		{
-			var departmentInDB = dbContext.Departments
+			var departmentInDB = _dbContext.Departments
 				.Include(i => i.Ideas
-					.Skip((pageIndex - 1) * pageSize)
-					.Take(pageSize))
+					.Skip((pageIndex - 1) * _pageSize)
+					.Take(_pageSize))
 				.SingleOrDefault(i => i.Id == idDepartment);
 			
 			if(departmentInDB == null)
 			{
 				return null;
 			}
+
 			DepartmentResponse departmentResponse = new()
 			{
 				Id = departmentInDB.Id,
@@ -65,8 +63,8 @@ namespace comp1640_dotnet.Repositories
 				AllIdeas = new AllIdeasResponse()
 				{
 					PageIndex = pageIndex,
-					TotalPage = (int)Math.Ceiling((double)dbContext.Ideas.Count() / pageSize),
-					Ideas = convertFactory.ConvertListIdeas(departmentInDB.Ideas)
+					TotalPage = (int)Math.Ceiling((double)_dbContext.Ideas.Count() / _pageSize),
+					Ideas = _convertFactory.ConvertListIdeas(departmentInDB.Ideas)
 				}
 			};
 			return departmentResponse;
@@ -74,12 +72,12 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<IEnumerable<Department>> GetDepartments()
 		{
-			return await dbContext.Departments.ToListAsync();
+			return await _dbContext.Departments.ToListAsync();
 		}
 
 		public async Task<DepartmentResponse?> UpdateDepartment(string idDepartment, DepartmentRequest department)
 		{
-			var departmentInDb = await dbContext.Departments
+			var departmentInDb = await _dbContext.Departments
 							 .SingleOrDefaultAsync(e => e.Id == idDepartment);
 
 			DepartmentResponse departmentResponse = new();
@@ -90,7 +88,7 @@ namespace comp1640_dotnet.Repositories
 			}
 
 			departmentInDb.Name = department.Name;
-			await dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
 			departmentResponse.Id = departmentInDb.Id;
 			departmentResponse.CreatedAt = departmentInDb.CreatedAt;
@@ -102,7 +100,7 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<Department?> RemoveDepartment(string idDepartment)
 		{
-			var result = await dbContext.Departments
+			var result = await _dbContext.Departments
 							 .SingleOrDefaultAsync(e => e.Id == idDepartment);
 
 			if (result == null)
@@ -110,8 +108,8 @@ namespace comp1640_dotnet.Repositories
 				return null;
 			}
 
-			dbContext.Departments.Remove(result);
-			await dbContext.SaveChangesAsync();
+			_dbContext.Departments.Remove(result);
+			await _dbContext.SaveChangesAsync();
 
 			return result;
 		}

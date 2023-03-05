@@ -3,10 +3,8 @@ using comp1640_dotnet.DTOs.Requests;
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
-using comp1640_dotnet.Services;
 using comp1640_dotnet.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Security.Claims;
 
 namespace comp1640_dotnet.Repositories
@@ -29,7 +27,7 @@ namespace comp1640_dotnet.Repositories
 			_httpContextAccessor = httpContextAccessor;
 		}
 
-		public async Task<CommentResponse> CreateComment(CommentRequest comment)
+		public async Task<CommentResponse?> CreateComment(CommentRequest comment, Idea idea)
 		{
 			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
 
@@ -37,17 +35,21 @@ namespace comp1640_dotnet.Repositories
 				IdeaId = comment.IdeaId,
 				UserId = userId,
 				Content = comment.Content,
-				IsAnonymous = comment.IsAnonymous
+				IsAnonymous = comment.IsAnonymous,
+				IsLatest = true,
 			};
-
-			var ideaInDb = _dbContext.Ideas
-				.Include(u => u.User)
-				.SingleOrDefault(i => i.Id == comment.IdeaId);
 
 			var author = _dbContext.Profiles.SingleOrDefault(p => p.UserId == userId);
 
 			var result = await _dbContext.Comments.AddAsync(commentToCreate);
 			await _dbContext.SaveChangesAsync();
+
+			if(result == null)
+			{
+				return null;
+			};
+
+			DisableLatestCommentInDb(idea);
 
 			CommentResponse commentResponse = new()
 			{
@@ -57,13 +59,14 @@ namespace comp1640_dotnet.Repositories
 				UpdatedAt = result.Entity.UpdatedAt,
 				Content = result.Entity.Content,
 				IsAnonymous = result.Entity.IsAnonymous,
+				IsLatest = result.Entity.IsLatest,
 				Author = author.FullName,
 			};
 
-			_notificationRepository.CreateNotification(ideaInDb.UserId, 
+			_notificationRepository.CreateNotification(idea.UserId, 
 				null, result.Entity.Id, "Your ideas have new comments.");
 
-			_emailService.SendEmail(ideaInDb.User.Email, "Your idea has a new comment.");
+			_emailService.SendEmail(idea.User.Email, "Your idea has a new comment.");
 
 			return commentResponse;
 		}
@@ -106,9 +109,23 @@ namespace comp1640_dotnet.Repositories
 			commentResponse.UpdatedAt = commentInDb.UpdatedAt;
 			commentResponse.Content = commentInDb.Content;
 			commentResponse.IsAnonymous = commentInDb.IsAnonymous;
+			commentResponse.IsLatest = commentInDb.IsLatest;
 			commentResponse.Author = commentInDb.Content;
 
 			return commentResponse;
+		}
+
+		private async void DisableLatestCommentInDb(Idea idea)
+		{
+			var latestComment = idea.Comments.OrderByDescending(i => i.CreatedAt)
+				.Where(c => c.IsLatest == true)
+				.ElementAtOrDefault(1);
+
+			if (latestComment != null)
+			{
+				latestComment.IsLatest = false;
+				await _dbContext.SaveChangesAsync();
+			}
 		}
 	}
 }

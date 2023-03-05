@@ -22,8 +22,7 @@ namespace comp1640_dotnet.Models
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		public string Content { get; set; } = string.Empty;
-		public bool IsAnonymous { get; set; }	
-		
-
+		public bool IsAnonymous { get; set; }
+		public bool IsLatest { get; set; }
 	}
 }

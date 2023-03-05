@@ -11,5 +11,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<AcademicYearResponse> CreateAcademicYear(AcademicYearRequest academicYear);	
 		Task<AcademicYearResponse> UpdateAcademicYear(string idAcademicYear, AcademicYearRequest academicYear);
 		Task<AcademicYear> RemoveAcademicYear(string idAcademicYear);
+		Task<bool> CheckDeadlineForNewIdeas();
+		Task<bool> CheckDeadlineForNewComments();
 	}
 }

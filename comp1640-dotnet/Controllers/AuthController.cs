@@ -141,8 +141,7 @@ namespace comp1640_dotnet.Controllers
 				.Include(r => r.Role)
 				.Include(u => u.User)
 				.SingleOrDefault(u => u.UserId == user.Id);
-
-			var academicYearInDb = _dbContext.AcademicYears.OrderByDescending(p => p.StartDate).Last();
+			var academicYearInDb = _dbContext.AcademicYears.OrderByDescending(p => p.StartDate).FirstOrDefault();
 			var departmentInDb = userRoleInDb.User.DepartmentId;
 
 			List<Claim> claims = new List<Claim>

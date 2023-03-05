@@ -8,11 +8,11 @@ namespace comp1640_dotnet.Repositories
 {
 	public class NotificationRepository : INotificationRepository
 	{
-		private readonly ApplicationDbContext dbContext;
+		private readonly ApplicationDbContext _dbContext;
 
-		public NotificationRepository(ApplicationDbContext _context)
+		public NotificationRepository(ApplicationDbContext dbContext)
 		{
-			dbContext = _context;
+			_dbContext = dbContext;
 		}
 
 		public async void CreateNotification(string userId, string? ideaId, string? commentId, string description)
@@ -25,13 +25,13 @@ namespace comp1640_dotnet.Repositories
 				Description = description,
 				IsRead = false
 			};
-			await dbContext.Notifications.AddAsync(notificationToCreate);
-			await dbContext.SaveChangesAsync();
+			await _dbContext.Notifications.AddAsync(notificationToCreate);
+			await _dbContext.SaveChangesAsync();
 		}
 
 		public async Task<NotificationResponse>? GetNotification(string idNotification)
 		{
-			var notificationInDb = dbContext.Notifications
+			var notificationInDb = _dbContext.Notifications
 				.Include(i => i.Idea)
 				.Include(c => c.Comment)
 				.SingleOrDefault(n => n.Id == idNotification);
@@ -42,7 +42,7 @@ namespace comp1640_dotnet.Repositories
 			}
 
 			notificationInDb.IsRead = true;
-			await dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
 			NotificationResponse notificationResponse = new()
 			{
@@ -61,7 +61,7 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<IEnumerable<Notification>> GetNotifications(string userId)
 		{
-			var notificationsInDb = await dbContext.Notifications
+			var notificationsInDb = await _dbContext.Notifications
 				.Where(n => n.UserId == userId && n.IsRead == false)
 				.ToListAsync();
 

@@ -17,6 +17,7 @@ namespace comp1640_dotnet.Factory
 					Name = x.Name,
 					Description = x.Description,
 					IsAnonymous = x.IsAnonymous,
+					IsLatest = x.IsLatest,
 					Author = x.Name,
 					Reactions = ConvertListReactions(x.Reactions),
 					Comments = ConvertListComments(x.Comments),
@@ -89,6 +90,7 @@ namespace comp1640_dotnet.Factory
 						UpdatedAt = x.UpdatedAt,
 						Content = x.Content,
 						IsAnonymous = x.IsAnonymous,
+						IsLatest = x.IsLatest,
 						Author = x.Content,
 					}).ToList();
 
