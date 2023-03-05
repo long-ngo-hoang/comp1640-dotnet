@@ -4,12 +4,9 @@ using comp1640_dotnet.Data;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-
 using Amazon;
-
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.DTOs.Requests;
-
 using comp1640_dotnet.Factory;
 using comp1640_dotnet.Services.Interfaces;
 using System.Security.Claims;
@@ -97,7 +94,7 @@ namespace comp1640_dotnet.Repositories
 						.Include(u => u.User)
 						.SingleOrDefault(u => u.UserId == item.Id && u.Role.Name == "Quality Assurance Manager");
 
-					if (QAManager != null)
+					if (QAManagerInDb != null)
 					{
 						QAManager = QAManagerInDb.User;
 					}
@@ -313,16 +310,38 @@ namespace comp1640_dotnet.Repositories
 
 		private async void DisableLatestIdeaInDb()
 		{
-			var latestIdea = _dbContext.Ideas
+			var latestIdeas = _dbContext.Ideas?
 				.OrderByDescending(i => i.CreatedAt)
 				.Where(c => c.IsLatest == true)
-				.ElementAtOrDefault(1);
+				.ToList();
 
-			if (latestIdea != null)
+			if (latestIdeas != null)
 			{
-				latestIdea.IsLatest = false;
+				latestIdeas.ElementAt(1).IsLatest = false;
 				await _dbContext.SaveChangesAsync();
 			}
+		}
+
+		public async Task<AllIdeasResponse> GetMostPopularIdeas(int pageIndex)
+		{
+			var ideasInDb = new List<Idea>();
+
+			ideasInDb = await _dbContext.Ideas
+				.Include(i => i.Reactions)
+	 			.Include(i => i.Comments)
+				.Include(i => i.Documents)
+				.OrderByDescending(i => i.Reactions.Count)
+				.Skip((pageIndex - 1) * _pageSize)
+				.Take(_pageSize).ToListAsync();
+
+			AllIdeasResponse allIdeasResponse = new()
+			{
+				PageIndex = pageIndex,
+				TotalPage = (int)Math.Ceiling((double)_dbContext.Ideas.Count() / _pageSize),
+				Ideas = _convertFactory.ConvertListIdeas(ideasInDb)
+			};
+
+			return allIdeasResponse;
 		}
 	}
 }

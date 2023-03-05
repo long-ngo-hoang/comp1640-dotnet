@@ -14,5 +14,6 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<IdeaResponse> UpdateIdea(string idIdea, IdeaRequest idea);
 		PreSignedUrlResponse GetS3PreSignedUrl();
 		Task<Idea> IdeaExistsInDb(string idIdea);
+		Task<AllIdeasResponse> GetMostPopularIdeas(int pageIndex);
 	}
 }

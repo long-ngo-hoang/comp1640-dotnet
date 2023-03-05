@@ -91,5 +91,13 @@ namespace comp1640_dotnet.Controllers
 
 			return result;
 		}
+
+		[HttpGet("GetMostPopularIdeas")]
+		public async Task<ActionResult<AllIdeasResponse>> GetMostPopularIdeas(int pageIndex = 1)
+		{
+			var result = await _ideaRepos.GetMostPopularIdeas(pageIndex);
+
+			return result;
+		}
 	}
 }
