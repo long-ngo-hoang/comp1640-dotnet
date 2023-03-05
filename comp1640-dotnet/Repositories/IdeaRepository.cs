@@ -52,7 +52,6 @@ namespace comp1640_dotnet.Repositories
 				CategoryId = idea.CategoryId,
 				Name = idea.Name,
 				Description = idea.Description,
-				IsLatest = true,
 				IsAnonymous = idea.IsAnonymous
 			};
 
@@ -63,8 +62,6 @@ namespace comp1640_dotnet.Repositories
 			{
 				return null;
 			}
-
-			DisableLatestIdeaInDb();
 
 			var author = _dbContext.Profiles.SingleOrDefault(p => p.UserId == userId);
 
@@ -77,7 +74,6 @@ namespace comp1640_dotnet.Repositories
 					Name = result.Entity.Name,
 					Description = result.Entity.Description,
 					IsAnonymous = result.Entity.IsAnonymous,
-					IsLatest = result.Entity.IsLatest,
 					ViewCount = result.Entity.ViewCount,
 					Author = author.FullName
 				};
@@ -135,7 +131,6 @@ namespace comp1640_dotnet.Repositories
 					Name = ideaInDb.Name,
 					Description = ideaInDb.Description,
 					IsAnonymous = ideaInDb.IsAnonymous,
-					IsLatest = ideaInDb.IsLatest,
 					ViewCount = ideaInDb.ViewCount,
 					Author = author.FullName,
 
@@ -152,18 +147,23 @@ namespace comp1640_dotnet.Repositories
 
 			if (nameIdea != null)
 			{
-				ideasInDb = await _dbContext.Ideas.Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
+				ideasInDb = await _dbContext.Ideas
 				 .Include(i => i.Reactions)
 				 .Include(i => i.Comments)
 				 .Include(i => i.Documents).Where(i => i.Name.Contains(nameIdea))
+				 .OrderByDescending(i => i.CreatedAt)
+				 .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
 				 .ToListAsync();
 			}
 			else
 			{
-				ideasInDb = await _dbContext.Ideas.Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
+				ideasInDb = await _dbContext.Ideas
 					.Include(i => i.Reactions)
 		 			.Include(i => i.Comments)
-					.Include(i => i.Documents).ToListAsync();
+					.Include(i => i.Documents)
+					.OrderByDescending(i => i.CreatedAt)
+				  .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
+					.ToListAsync();
 			}
 
 			AllIdeasResponse allIdeasResponse = new()
@@ -224,7 +224,6 @@ namespace comp1640_dotnet.Repositories
 			ideaResponse.Name = ideaInDb.Name;
 			ideaResponse.Description = ideaInDb.Description;
 			ideaResponse.IsAnonymous = ideaInDb.IsAnonymous;
-			ideaResponse.IsLatest = ideaInDb.IsLatest;
 			ideaResponse.ViewCount = ideaInDb.ViewCount;
 			ideaResponse.Author = ideaInDb.Name;
 
@@ -270,20 +269,24 @@ namespace comp1640_dotnet.Repositories
 
 			if (nameIdea != null)
 			{
-				ideasInDb = await _dbContext.Ideas.Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
+				ideasInDb = await _dbContext.Ideas
 				 .Include(i => i.Reactions)
 				 .Include(i => i.Comments)
 				 .Include(i => i.Documents)
 				 .Where(i => i.Name.Contains(nameIdea) && i.UserId == userId)
+				 .OrderByDescending(i => i.CreatedAt)
+				 .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
 				 .ToListAsync();
 			}
 			else
 			{
-				ideasInDb = await _dbContext.Ideas.Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
+				ideasInDb = await _dbContext.Ideas
 					.Include(i => i.Reactions)
 		 			.Include(i => i.Comments)
 					.Include(i => i.Documents)
 					.Where(i => i.UserId == userId)
+				  .OrderByDescending(i => i.CreatedAt)
+				  .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
 					.ToListAsync();
 			}
 
@@ -309,20 +312,6 @@ namespace comp1640_dotnet.Repositories
 				return null; 
 			}
 			return ideaInDb;
-		}
-
-		private async void DisableLatestIdeaInDb()
-		{
-			var latestIdeas = _dbContext.Ideas?
-				.OrderByDescending(i => i.CreatedAt)
-				.Where(c => c.IsLatest == true)
-				.ToList();
-
-			if (latestIdeas != null)
-			{
-				latestIdeas.ElementAt(1).IsLatest = false;
-				await _dbContext.SaveChangesAsync();
-			}
 		}
 
 		public async Task<AllIdeasResponse> GetMostPopularIdeas(int pageIndex)

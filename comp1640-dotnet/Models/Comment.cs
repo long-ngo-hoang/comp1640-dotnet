@@ -23,6 +23,5 @@ namespace comp1640_dotnet.Models
 
 		public string Content { get; set; } = string.Empty;
 		public bool IsAnonymous { get; set; }
-		public bool IsLatest { get; set; }
 	}
 }

@@ -35,7 +35,6 @@ namespace comp1640_dotnet.Models
 		public string Description { get; set; } = string.Empty;
 		public bool IsAnonymous { get; set; }
 		public int ViewCount { get; set; }
-		public bool IsLatest { get; set; }
 		//relations
 		public List<Reaction>? Reactions { get; set; }
 		public List<Comment>? Comments { get; set; }
