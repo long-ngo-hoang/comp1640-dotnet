@@ -15,5 +15,6 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		PreSignedUrlResponse GetS3PreSignedUrl();
 		Task<Idea> IdeaExistsInDb(string idIdea);
 		Task<AllIdeasResponse> GetMostPopularIdeas(int pageIndex);
+		Task<AllIdeasResponse> GetMostViewedIdeas(int pageIndex);
 	}
 }

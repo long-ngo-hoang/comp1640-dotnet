@@ -18,6 +18,7 @@ namespace comp1640_dotnet.Factory
 					Description = x.Description,
 					IsAnonymous = x.IsAnonymous,
 					IsLatest = x.IsLatest,
+					ViewCount = x.ViewCount,
 					Author = x.Name,
 					Reactions = ConvertListReactions(x.Reactions),
 					Comments = ConvertListComments(x.Comments),

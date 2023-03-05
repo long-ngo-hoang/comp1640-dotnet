@@ -98,6 +98,14 @@ namespace comp1640_dotnet.Controllers
 			var result = await _ideaRepos.GetMostPopularIdeas(pageIndex);
 
 			return result;
+		}		
+		
+		[HttpGet("GetMostViewedIdeas")]
+		public async Task<ActionResult<AllIdeasResponse>> GetMostViewedIdeas(int pageIndex = 1)
+		{
+			var result = await _ideaRepos.GetMostViewedIdeas(pageIndex);
+
+			return result;
 		}
 	}
 }

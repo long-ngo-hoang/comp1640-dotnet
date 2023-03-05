@@ -78,6 +78,7 @@ namespace comp1640_dotnet.Repositories
 					Description = result.Entity.Description,
 					IsAnonymous = result.Entity.IsAnonymous,
 					IsLatest = result.Entity.IsLatest,
+					ViewCount = result.Entity.ViewCount,
 					Author = author.FullName
 				};
 
@@ -135,6 +136,7 @@ namespace comp1640_dotnet.Repositories
 					Description = ideaInDb.Description,
 					IsAnonymous = ideaInDb.IsAnonymous,
 					IsLatest = ideaInDb.IsLatest,
+					ViewCount = ideaInDb.ViewCount,
 					Author = author.FullName,
 
 					Reactions = _convertFactory.ConvertListReactions(ideaInDb.Reactions),
@@ -223,6 +225,7 @@ namespace comp1640_dotnet.Repositories
 			ideaResponse.Description = ideaInDb.Description;
 			ideaResponse.IsAnonymous = ideaInDb.IsAnonymous;
 			ideaResponse.IsLatest = ideaInDb.IsLatest;
+			ideaResponse.ViewCount = ideaInDb.ViewCount;
 			ideaResponse.Author = ideaInDb.Name;
 
 			ideaResponse.Reactions = _convertFactory.ConvertListReactions(ideaInDb.Reactions);
@@ -331,6 +334,28 @@ namespace comp1640_dotnet.Repositories
 	 			.Include(i => i.Comments)
 				.Include(i => i.Documents)
 				.OrderByDescending(i => i.Reactions.Count)
+				.Skip((pageIndex - 1) * _pageSize)
+				.Take(_pageSize).ToListAsync();
+
+			AllIdeasResponse allIdeasResponse = new()
+			{
+				PageIndex = pageIndex,
+				TotalPage = (int)Math.Ceiling((double)_dbContext.Ideas.Count() / _pageSize),
+				Ideas = _convertFactory.ConvertListIdeas(ideasInDb)
+			};
+
+			return allIdeasResponse;
+		}
+
+		public async Task<AllIdeasResponse> GetMostViewedIdeas(int pageIndex)
+		{
+			var ideasInDb = new List<Idea>();
+
+			ideasInDb = await _dbContext.Ideas
+				.Include(i => i.Reactions)
+	 			.Include(i => i.Comments)
+				.Include(i => i.Documents)
+				.OrderByDescending(i => i.ViewCount)
 				.Skip((pageIndex - 1) * _pageSize)
 				.Take(_pageSize).ToListAsync();
 
