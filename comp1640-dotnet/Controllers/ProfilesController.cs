@@ -33,8 +33,21 @@ namespace comp1640_dotnet.Controllers
 			return Ok(result);
 		}
 
-		[HttpPut("{id}")]
-		public async Task<ActionResult<ProfileResponse>> UpdateProfile(string id, ProfileRequest profile)
+		[Authorize(Roles = "Administrator")]
+		[HttpGet("GetProfileByUserId/{id}")]
+		public async Task<ActionResult<ProfileResponse>> GetProfileByUserId(string id)
+		{
+			var result = await _profileRepos.GetProfileByUserId(id);
+			if(result == null)
+			{
+				return BadRequest("Profile not found");
+			}
+			return Ok(result);
+		}
+
+		[Authorize(Roles = "Administrator")]
+		[HttpPut("UpdateProfileByUserId/{id}")]
+		public async Task<ActionResult<ProfileResponse>> UpdateProfileByUserId(string id, ProfileRequest profile)
 		{
 			var result = await _profileRepos.UpdateProfile(id, profile);
 			if (result == null)
