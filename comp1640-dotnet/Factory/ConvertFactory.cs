@@ -5,6 +5,21 @@ namespace comp1640_dotnet.Factory
 {
 	public class ConvertFactory
 	{
+		public List<UserResponse> ConvertListUsers(List<User> _users)
+		{
+			var users = _users
+				.Select(x => new UserResponse()
+				{
+					Id = x.Id,
+					CreatedAt = x.CreatedAt,
+					UpdatedAt = x.UpdatedAt,
+					UserName = x.UserName,
+					Email = x.Email
+				}).ToList();
+
+			return users;
+		}
+
 		public List<IdeaResponse> ConvertListIdeas(List<Idea> _ideas)
 		{
 			var ideas = _ideas

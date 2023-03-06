@@ -40,7 +40,6 @@ namespace comp1640_dotnet.Controllers
 				{
 					UserName = userRegisterRequest.Email,
 					Email = userRegisterRequest.Email,
-					DepartmentId = userRegisterRequest.DepartmentId,
 					PasswordSalt = PasswordSalt(hmac),
 					PasswordHash = PasswordHash(userRegisterRequest.Password, hmac),
 				};
@@ -144,14 +143,22 @@ namespace comp1640_dotnet.Controllers
 			var academicYearInDb = _dbContext.AcademicYears.OrderByDescending(p => p.StartDate).FirstOrDefault();
 			var departmentInDb = userRoleInDb.User.DepartmentId;
 
-			List<Claim> claims = new List<Claim>
+			List<Claim> claims = new();
+
+			if (userRoleInDb.Role.Name == "Staff")
 			{
-				new Claim("AcademicYearId", academicYearInDb.Id),
-				new Claim("DepartmentId", departmentInDb),
-				new Claim("UserId", user.Id),
-				new Claim("UserName", user.UserName),
-				new Claim(ClaimTypes.Role, userRoleInDb.Role.Name), 
-			};
+				claims.Add(new Claim("AcademicYearId", academicYearInDb.Id));
+				claims.Add(new Claim("DepartmentId", departmentInDb));
+				claims.Add(new Claim("UserId", user.Id));
+				claims.Add(new Claim("UserName", user.UserName));
+				claims.Add(new Claim(ClaimTypes.Role, userRoleInDb.Role.Name));
+			}
+			else
+			{
+				claims.Add(new Claim("UserId", user.Id));
+				claims.Add(new Claim("UserName", user.UserName));
+				claims.Add(new Claim(ClaimTypes.Role, userRoleInDb.Role.Name));
+			}
 
 			var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
 				_configuration.GetSection("AppSettings:Token").Value));

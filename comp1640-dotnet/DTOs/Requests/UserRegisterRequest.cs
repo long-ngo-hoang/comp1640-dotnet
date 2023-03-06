@@ -10,8 +10,6 @@ namespace comp1640_dotnet.DTOs.Requests
 		[Required]
 		[DataType(DataType.Password)]
 		public string Password { get; set; } = string.Empty;
-		[Required]
-		public string DepartmentId { get; set; } = string.Empty;
 	}
 }
  

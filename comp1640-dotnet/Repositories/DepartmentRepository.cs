@@ -47,6 +47,7 @@ namespace comp1640_dotnet.Repositories
 				.Include(i => i.Ideas
 					.Skip((pageIndex - 1) * _pageSize)
 					.Take(_pageSize))
+				.Include(u => u.Users)
 				.SingleOrDefault(i => i.Id == idDepartment);
 			
 			if(departmentInDB == null)
@@ -65,7 +66,8 @@ namespace comp1640_dotnet.Repositories
 					PageIndex = pageIndex,
 					TotalPage = (int)Math.Ceiling((double)_dbContext.Ideas.Count() / _pageSize),
 					Ideas = _convertFactory.ConvertListIdeas(departmentInDB.Ideas)
-				}
+				},
+				AllUsers = _convertFactory.ConvertListUsers(departmentInDB.Users)
 			};
 			return departmentResponse;
 		}
@@ -112,6 +114,60 @@ namespace comp1640_dotnet.Repositories
 			await _dbContext.SaveChangesAsync();
 
 			return result;
+		}
+
+		public async Task<DepartmentResponse?> RemoveUserFromDepartment(string userId)
+		{
+			var userInDb = _dbContext.Users
+				.Include(d => d.Department)
+				.SingleOrDefault(u => u.Id == userId);
+
+			if(userInDb == null)
+			{
+				return null;
+			}
+			var departmentInDb = userInDb.Department;
+
+			userInDb.DepartmentId = null;
+			await _dbContext.SaveChangesAsync();
+
+			DepartmentResponse departmentResponse = new()
+			{
+				Id = departmentInDb.Id,
+				CreatedAt = departmentInDb.CreatedAt,
+				UpdatedAt = departmentInDb.UpdatedAt,
+				Name = departmentInDb.Name
+			};
+
+			return departmentResponse;
+		}
+
+		public async Task<DepartmentResponse?> AddUserToDepartment(string userId, string departmentId)
+		{
+			var userInDb = _dbContext.Users
+				.SingleOrDefault(u => u.Id == userId);
+
+			var departmentInDb = _dbContext.Departments
+				.SingleOrDefault(u => u.Id == departmentId);
+
+			if (userInDb == null)
+			{
+				return null;
+			}
+
+			userInDb.DepartmentId = departmentId;
+
+			await _dbContext.SaveChangesAsync();
+
+			DepartmentResponse departmentResponse = new()
+			{
+				Id = departmentInDb.Id,
+				CreatedAt = departmentInDb.CreatedAt,
+				UpdatedAt = departmentInDb.UpdatedAt,
+				Name = departmentInDb.Name
+			};
+
+			return departmentResponse;
 		}
 	}
 }
