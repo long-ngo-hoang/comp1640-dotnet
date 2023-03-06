@@ -169,5 +169,23 @@ namespace comp1640_dotnet.Repositories
 
 			return departmentResponse;
 		}
+
+		public async Task<IEnumerable<DepartmentResponse>> GetStatisticalAnalysis()
+		{
+			var departmentsInDb = _dbContext.Departments
+				.Include(i => i.Ideas)
+				.ToList();
+
+			var departments = departmentsInDb.Select(x => new DepartmentResponse()
+			{
+				Id = x.Id,
+				CreatedAt = x.CreatedAt,
+				UpdatedAt = x.UpdatedAt,
+				TotalIdeas = x.Ideas.Count(),
+			}).ToList();
+
+			return departments;
+
+		}
 	}
 }

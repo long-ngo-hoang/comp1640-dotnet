@@ -92,5 +92,17 @@ namespace comp1640_dotnet.Controllers
 			}
 			return Ok(result);
 		}
+
+		[HttpGet("GetStatisticalAnalysis")]
+		public async Task<ActionResult<IEnumerable<Department>>> GetStatisticalAnalysis()
+		{
+			var result = await _departmentRepos.GetStatisticalAnalysis();
+
+			if (result == null)
+			{
+				return BadRequest("");
+			}
+			return Ok(result);
+		}
 	}
 }
