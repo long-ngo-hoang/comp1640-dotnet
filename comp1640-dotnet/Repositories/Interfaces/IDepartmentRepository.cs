@@ -11,5 +11,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<DepartmentResponse> CreateDepartment(DepartmentRequest department);
 		Task<Department> RemoveDepartment(string idDepartment);
 		Task<DepartmentResponse> UpdateDepartment(string idDepartment, DepartmentRequest department);
+		Task<DepartmentResponse> RemoveUserFromDepartment(string userId);
+		Task<DepartmentResponse> AddUserToDepartment(string userId, string departmentId);
 	}
 }

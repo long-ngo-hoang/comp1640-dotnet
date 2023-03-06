@@ -51,7 +51,7 @@ namespace comp1640_dotnet.Repositories
 			return academicYearResponse;
 		}
 
-		public async Task<AcademicYearResponse> GetAcademicYear(string idAcademicYear, int pageIndex)
+		public async Task<AcademicYearResponse?> GetAcademicYear(string idAcademicYear, int pageIndex)
 		{
 			var academicYearInDb = _dbContext.AcademicYears
 				.Include(i => i.Ideas
@@ -62,6 +62,11 @@ namespace comp1640_dotnet.Repositories
 			int academicYearsCount = _dbContext.Ideas
 				.Where(i => i.AcademicYearId == idAcademicYear)
 				.Count();
+
+			if(academicYearInDb == null)
+			{
+				return null;
+			}
 
 			AcademicYearResponse academicYearResponse = new()
 			{

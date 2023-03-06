@@ -109,7 +109,7 @@ namespace comp1640_dotnet.Repositories
 		{
 			var ideaInDb = _dbContext.Ideas
 				.Include(i => i.Reactions)
-				.Include(i => i.Comments)
+				.Include(i => i.Comments.OrderByDescending(c => c.CreatedAt))
 				.Include(i => i.Documents).SingleOrDefault(i => i.Id == idIdea);
 
 			var author = _dbContext.Profiles.SingleOrDefault(a => a.UserId == ideaInDb.UserId);
