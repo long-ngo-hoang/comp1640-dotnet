@@ -7,7 +7,8 @@ namespace comp1640_dotnet.Repositories.Interfaces
 	public interface IProfileRepository
 	{
 		Task<ProfileResponse> GetProfile();
+		Task<ProfileResponse> GetProfileByUserId(string userId);
 		Task<Profile> CreateProfile(string userId);
-		Task<ProfileResponse> UpdateProfile(string idProfile, ProfileRequest profile);
+		Task<ProfileResponse> UpdateProfileByUserId(string userId, ProfileRequest profile);
 	}
 }

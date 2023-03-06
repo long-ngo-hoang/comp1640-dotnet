@@ -57,15 +57,38 @@ namespace comp1640_dotnet.Repositories
 			return profileResponse;
 		}
 
+		public async Task<ProfileResponse?> GetProfileByUserId(string userId)
+		{
+			var profileInDb = await _dbContext.Profiles
+										 .SingleOrDefaultAsync(e => e.UserId == userId);
+
+			if(profileInDb == null)
+			{
+				return null;
+			}
+
+			ProfileResponse profileResponse = new()
+			{
+				Id = profileInDb.Id,
+				CreatedAt = profileInDb.CreatedAt,
+				UpdatedAt = profileInDb.UpdatedAt,
+				AvatarUrl = profileInDb.AvatarUrl,
+				FullName = profileInDb.FullName,
+				Address = profileInDb.Address,
+				Phone = profileInDb.Phone,
+			};
+			return profileResponse;
+		}
+
 		public async Task<IEnumerable<Profile>> GetProfiles()
 		{
 			return await _dbContext.Profiles.ToListAsync();
 		}
 
-		public async Task<ProfileResponse?> UpdateProfile(string idProfile, ProfileRequest profile)
+		public async Task<ProfileResponse?> UpdateProfileByUserId(string userId, ProfileRequest profile)
 		{
 			var profileInDb = await _dbContext.Profiles
-							 .SingleOrDefaultAsync(e => e.Id == idProfile);
+							 .SingleOrDefaultAsync(e => e.UserId == userId);
 
 			ProfileResponse profileResponse = new();
 
