@@ -15,7 +15,7 @@ namespace comp1640_dotnet.Services
 			configuration = _configuration;
 		}
 
-		public void SendEmail(string sendToEmail, string subject)
+		public string SendEmail(string sendToEmail, string subject)
 		{
 			var email = new MimeMessage();
 			email.From.Add(MailboxAddress.Parse(configuration["MAILKIT:EMAIL"]));
@@ -30,6 +30,8 @@ namespace comp1640_dotnet.Services
 
 			smtp.Send(email);
 			smtp.Disconnect(true);
+
+			return sendToEmail;
 		}
 	}
 }

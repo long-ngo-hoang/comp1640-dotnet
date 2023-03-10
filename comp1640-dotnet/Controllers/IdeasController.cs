@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.DTOs.Requests;
+using comp1640_dotnet.Repositories;
+using comp1640_dotnet.Services.Interfaces;
 
 namespace comp1640_dotnet.Controllers
 {
@@ -15,12 +17,21 @@ namespace comp1640_dotnet.Controllers
 	{
 		private readonly IIdeaRepository _ideaRepos;		
 		private readonly IAcademicYearRepository _academicYearRepos;
+		private readonly INotificationRepository _notificationRepos;
+		private readonly IUserRepository _userRepos;
+		private readonly IEmailService _emailService;
 
 		public IdeasController(IIdeaRepository ideaRepos,
-			IAcademicYearRepository academicYearRepos)
+			IAcademicYearRepository academicYearRepos,
+			INotificationRepository notificationRepos,
+			IUserRepository userRepos,
+			IEmailService emailService)
 		{
 			_ideaRepos = ideaRepos;
 			_academicYearRepos = academicYearRepos;
+			_notificationRepos = notificationRepos;
+			_userRepos = userRepos;
+			_emailService = emailService;
 		}
 
 		[HttpGet]
@@ -34,6 +45,12 @@ namespace comp1640_dotnet.Controllers
 		public async Task<ActionResult<AllIdeasResponse>> GetIdeasByUserId(int pageIndex = 1, string? nameIdea = null)
 		{
 			var result = await _ideaRepos.GetIdeasByUserId(pageIndex, nameIdea);
+			
+			if(result == null)
+			{
+				return BadRequest("Ideas not found");
+			}
+
 			return Ok(result);
 		}
 
@@ -41,10 +58,12 @@ namespace comp1640_dotnet.Controllers
 		public async Task<ActionResult<IdeaResponse>> GetIdea(string id)
 		{
 			var result = await _ideaRepos.GetIdea(id);
+			
 			if(result == null)
 			{
 				return BadRequest("Idea not found");
 			}
+
 			return Ok(result);
 		}
 
@@ -57,9 +76,21 @@ namespace comp1640_dotnet.Controllers
 			{
 				return BadRequest("The deadline for creating new ideas has expired.");
 			}
+			var result = await _ideaRepos.CreateIdea(idea);
 
-				var result = await _ideaRepos.CreateIdea(idea);
-				return Ok(result);
+			if(result == null)
+			{
+				return BadRequest("Can't create idea now.");
+			}
+
+			User qACoordinator = await _userRepos.GetQACoordinator();
+
+			_notificationRepos.CreateNotification(qACoordinator.Id, result.Id,
+						null, "The staff in the department just created a new idea.");
+
+		  _emailService.SendEmail(qACoordinator.Email, "Your employee just posted an idea");
+
+			return Ok(result);
 		}
 
 		[HttpDelete("{id}"), Authorize(Roles = "Staff")]
@@ -69,7 +100,7 @@ namespace comp1640_dotnet.Controllers
 			if(result == null)
 			{
 				return BadRequest("Idea not found");
-			}
+			}		
 			return Ok();
 		}
 

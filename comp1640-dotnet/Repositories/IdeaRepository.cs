@@ -19,22 +19,16 @@ namespace comp1640_dotnet.Repositories
 		private readonly IConfiguration _configuration;
 		private static readonly int _pageSize = 5;
 		private readonly ConvertFactory _convertFactory;
-		private readonly IEmailService _emailService;
-		private readonly INotificationRepository _notificationRepository;
 		private readonly IHttpContextAccessor _httpContextAccessor;
 
 		public IdeaRepository(ApplicationDbContext dbcontext, 
 			IConfiguration configuration,
 			ConvertFactory convertFactory,
-			IEmailService emailService,
-			INotificationRepository notificationRepository,
 			IHttpContextAccessor httpContextAccessor)
 		{
 			_dbContext = dbcontext;
 			_configuration = configuration;
 			_convertFactory = convertFactory;
-			_emailService = emailService;
-			_notificationRepository = notificationRepository;
 			_httpContextAccessor = httpContextAccessor;
 		}
 
@@ -63,7 +57,7 @@ namespace comp1640_dotnet.Repositories
 				return null;
 			}
 
-			var author = _dbContext.Profiles.SingleOrDefault(p => p.UserId == userId);
+			var author = _dbContext.Users.SingleOrDefault(p => p.Id == userId);
 
 			IdeaResponse ideaResponse = new()
 				{
@@ -75,32 +69,8 @@ namespace comp1640_dotnet.Repositories
 					Description = result.Entity.Description,
 					IsAnonymous = result.Entity.IsAnonymous,
 					ViewCount = result.Entity.ViewCount,
-					Author = author.FullName
+					Author = author.UserName
 				};
-
-			var departmentInDb = _dbContext.Departments
-				.Include(u => u.Users)
-				.SingleOrDefault(d => d.Id == departmentId);
-
-			User? QAManager = null;
-
-			foreach (var item in departmentInDb.Users)
-				{
-					var QAManagerInDb = _dbContext.UserRoles
-						.Include(r => r.Role)
-						.Include(u => u.User)
-						.SingleOrDefault(u => u.UserId == item.Id && u.Role.Name == "Quality Assurance Manager");
-
-					if (QAManagerInDb != null)
-					{
-						QAManager = QAManagerInDb.User;
-					}
-				}
-
-			_notificationRepository.CreateNotification(QAManager.Id, result.Entity.Id,
-					null, "The staff in the department just created a new idea.");
-
-			_emailService.SendEmail(QAManager.Email, "Your employee just posted an idea");
 			
 			return ideaResponse;
 		}
@@ -108,11 +78,11 @@ namespace comp1640_dotnet.Repositories
 		public async Task<IdeaResponse?> GetIdea(string idIdea)
 		{
 			var ideaInDb = _dbContext.Ideas
+				.Include(u => u.User)
 				.Include(i => i.Reactions)
 				.Include(i => i.Comments.OrderByDescending(c => c.CreatedAt))
+				.ThenInclude(u => u.User)
 				.Include(i => i.Documents).SingleOrDefault(i => i.Id == idIdea);
-
-			var author = _dbContext.Profiles.SingleOrDefault(a => a.UserId == ideaInDb.UserId);
 
 			if (ideaInDb == null)
 			{
@@ -132,7 +102,7 @@ namespace comp1640_dotnet.Repositories
 					Description = ideaInDb.Description,
 					IsAnonymous = ideaInDb.IsAnonymous,
 					ViewCount = ideaInDb.ViewCount,
-					Author = author.FullName,
+					Author = ideaInDb.User.UserName,
 
 					Reactions = _convertFactory.ConvertListReactions(ideaInDb.Reactions),
 					Comments = _convertFactory.ConvertListComments(ideaInDb.Comments),
@@ -148,8 +118,10 @@ namespace comp1640_dotnet.Repositories
 			if (nameIdea != null)
 			{
 				ideasInDb = await _dbContext.Ideas
+				 .Include(u => u.User)
 				 .Include(i => i.Reactions)
 				 .Include(i => i.Comments)
+				 .ThenInclude(u => u.User)
 				 .Include(i => i.Documents).Where(i => i.Name.Contains(nameIdea))
 				 .OrderByDescending(i => i.CreatedAt)
 				 .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
@@ -158,8 +130,10 @@ namespace comp1640_dotnet.Repositories
 			else
 			{
 				ideasInDb = await _dbContext.Ideas
+					.Include(u => u.User)
 					.Include(i => i.Reactions)
 		 			.Include(i => i.Comments)
+					.ThenInclude(u => u.User)
 					.Include(i => i.Documents)
 					.OrderByDescending(i => i.CreatedAt)
 				  .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
@@ -181,8 +155,10 @@ namespace comp1640_dotnet.Repositories
 			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
 
 			var result = await _dbContext.Ideas
+				.Include(n => n.Notification)
 				.Include(r => r.Reactions)
 				.Include(c => c.Comments)
+				.ThenInclude(n => n.Notification)
 				.Include(d => d.Documents)
 				.SingleOrDefaultAsync(e => e.Id == idIdea && e.UserId == userId);
 
@@ -261,7 +237,7 @@ namespace comp1640_dotnet.Repositories
 			return preSignedUrlResponse;
 		}
 
-		public async Task<AllIdeasResponse> GetIdeasByUserId(int pageIndex, string? nameIdea)
+		public async Task<AllIdeasResponse?> GetIdeasByUserId(int pageIndex, string? nameIdea)
 		{
 			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
 
@@ -270,8 +246,10 @@ namespace comp1640_dotnet.Repositories
 			if (nameIdea != null)
 			{
 				ideasInDb = await _dbContext.Ideas
+				 .Include(u => u.User)
 				 .Include(i => i.Reactions)
 				 .Include(i => i.Comments)
+				 .ThenInclude(u => u.User)
 				 .Include(i => i.Documents)
 				 .Where(i => i.Name.Contains(nameIdea) && i.UserId == userId)
 				 .OrderByDescending(i => i.CreatedAt)
@@ -281,8 +259,10 @@ namespace comp1640_dotnet.Repositories
 			else
 			{
 				ideasInDb = await _dbContext.Ideas
+					.Include(u => u.User)
 					.Include(i => i.Reactions)
 		 			.Include(i => i.Comments)
+					.ThenInclude(u => u.User)
 					.Include(i => i.Documents)
 					.Where(i => i.UserId == userId)
 				  .OrderByDescending(i => i.CreatedAt)
@@ -290,14 +270,18 @@ namespace comp1640_dotnet.Repositories
 					.ToListAsync();
 			}
 
+			if (ideasInDb == null)
+			{	
+				return null;
+			}
+	
 			AllIdeasResponse allIdeasResponse = new()
-			{
-				PageIndex = pageIndex,
-				TotalPage = (int)Math.Ceiling((double)_dbContext.Ideas.Count() / _pageSize),
-				Ideas = _convertFactory.ConvertListIdeas(ideasInDb)
-			};
-
-			return allIdeasResponse;
+				{
+					PageIndex = pageIndex,
+					TotalPage = (int)Math.Ceiling((double)_dbContext.Ideas.Count() / _pageSize),
+					Ideas = _convertFactory.ConvertListIdeas(ideasInDb)
+				};
+				return allIdeasResponse;
 		}
 
 		public async Task<Idea?> IdeaExistsInDb(string idIdea)
@@ -319,8 +303,10 @@ namespace comp1640_dotnet.Repositories
 			var ideasInDb = new List<Idea>();
 
 			ideasInDb = await _dbContext.Ideas
+				.Include(u => u.User)
 				.Include(i => i.Reactions)
 	 			.Include(i => i.Comments)
+				.ThenInclude(u => u.User)
 				.Include(i => i.Documents)
 				.OrderByDescending(i => i.Reactions.Count)
 				.Skip((pageIndex - 1) * _pageSize)
@@ -341,8 +327,10 @@ namespace comp1640_dotnet.Repositories
 			var ideasInDb = new List<Idea>();
 
 			ideasInDb = await _dbContext.Ideas
+				.Include(u => u.User)
 				.Include(i => i.Reactions)
 	 			.Include(i => i.Comments)
+				.ThenInclude(u => u.User)
 				.Include(i => i.Documents)
 				.OrderByDescending(i => i.ViewCount)
 				.Skip((pageIndex - 1) * _pageSize)
