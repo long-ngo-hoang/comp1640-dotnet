@@ -69,10 +69,10 @@ namespace comp1640_dotnet.Controllers
 			return Ok("Delete successful Department");
 		}
 
-		[HttpPut("AddUserToDepartment/{id}")]
-		public async Task<ActionResult<DepartmentResponse>> AddUserToDepartment(string id, string departmentId)
+		[HttpPut("AddUserToDepartment/{userId}")]
+		public async Task<ActionResult<DepartmentResponse>> AddUserToDepartment(string userId, string departmentId)
 		{
-			var result = await _departmentRepos.AddUserToDepartment(id, departmentId);
+			var result = await _departmentRepos.AddUserToDepartment(userId, departmentId);
 
 			if(result == null)
 			{
@@ -81,10 +81,10 @@ namespace comp1640_dotnet.Controllers
 			return Ok(result);
 		}
 
-		[HttpPut("RemoveUserFromDepartment/{id}")]
-		public async Task<ActionResult<DepartmentResponse>> RemoveUserFromDepartment(string id)
+		[HttpPut("RemoveUserFromDepartment/{userId}")]
+		public async Task<ActionResult<DepartmentResponse>> RemoveUserFromDepartment(string userId)
 		{
-			var result = await _departmentRepos.RemoveUserFromDepartment(id);
+			var result = await _departmentRepos.RemoveUserFromDepartment(userId);
 
 			if (result == null)
 			{

@@ -23,9 +23,9 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Notification>>> GetNotifications(string id)
+		public async Task<ActionResult<IEnumerable<Notification>>> GetNotifications()
 		{
-			var result = await notificationRepos.GetNotifications(id);
+			var result = await notificationRepos.GetNotifications();
 			return Ok(result);
 		}
 

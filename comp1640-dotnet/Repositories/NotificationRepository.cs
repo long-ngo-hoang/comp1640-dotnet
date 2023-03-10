@@ -3,16 +3,20 @@ using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace comp1640_dotnet.Repositories
 {
 	public class NotificationRepository : INotificationRepository
 	{
 		private readonly ApplicationDbContext _dbContext;
+		private readonly IHttpContextAccessor _httpContextAccessor;
 
-		public NotificationRepository(ApplicationDbContext dbContext)
+		public NotificationRepository(ApplicationDbContext dbContext,
+			IHttpContextAccessor httpContextAccessor)
 		{
 			_dbContext = dbContext;
+			_httpContextAccessor = httpContextAccessor;
 		}
 
 		public async void CreateNotification(string userId, string? ideaId, string? commentId, string description)
@@ -59,8 +63,10 @@ namespace comp1640_dotnet.Repositories
 			return notificationResponse;
 		}
 
-		public async Task<IEnumerable<Notification>> GetNotifications(string userId)
+		public async Task<IEnumerable<Notification>> GetNotifications()
 		{
+			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			var notificationsInDb = await _dbContext.Notifications
 				.Where(n => n.UserId == userId && n.IsRead == false)
 				.ToListAsync();

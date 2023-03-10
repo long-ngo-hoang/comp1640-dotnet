@@ -6,7 +6,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 {
 	public interface INotificationRepository
 	{
-		Task<IEnumerable<Notification>> GetNotifications(string userId);
+		Task<IEnumerable<Notification>> GetNotifications();
 		Task<NotificationResponse> GetNotification(string idNotification);
 		void CreateNotification(string userId, string? ideaId, string? commentId, string description);
 	}

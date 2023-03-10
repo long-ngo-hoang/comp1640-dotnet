@@ -3,7 +3,6 @@ using comp1640_dotnet.DTOs.Requests;
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
-using comp1640_dotnet.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -12,18 +11,12 @@ namespace comp1640_dotnet.Repositories
 	public class CommentRepository : ICommentRepository
 	{
 		private readonly ApplicationDbContext _dbContext;
-		private readonly IEmailService _emailService;
-		private readonly INotificationRepository _notificationRepository;
 		private readonly IHttpContextAccessor _httpContextAccessor;
 
 		public CommentRepository(ApplicationDbContext dbContext,
-			IEmailService emailService,
-			INotificationRepository notificationRepository,
 			IHttpContextAccessor httpContextAccessor)
 		{
 			_dbContext = dbContext;
-			_emailService = emailService;
-			_notificationRepository = notificationRepository;
 			_httpContextAccessor = httpContextAccessor;
 		}
 
@@ -59,18 +52,16 @@ namespace comp1640_dotnet.Repositories
 				Author = author.FullName,
 			};
 
-			_notificationRepository.CreateNotification(idea.UserId, 
-				null, result.Entity.Id, "Your ideas have new comments.");
-
-			_emailService.SendEmail(idea.User.Email, "Your idea has a new comment.");
-
 			return commentResponse;
 		}
 
 		public async Task<Comment?> RemoveComment(string idComment)
 		{
+			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			var result = await _dbContext.Comments
-							 .SingleOrDefaultAsync(e => e.Id == idComment);
+				.Include(n => n.Notification)
+				.SingleOrDefaultAsync(c => c.Id == idComment && c.UserId == userId);
 
 			if(result == null)
 			{

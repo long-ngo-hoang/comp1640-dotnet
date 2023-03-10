@@ -31,6 +31,7 @@ namespace comp1640_dotnet.Models
 		public List<Reaction>? Reactions { get; set; }
 		public List<Comment>? Comments	{ get; set; }
 		public List<Idea>? Ideas { get; set; }
+		public List<Notification>? Notifications { get; set; }
 
 	}
 }

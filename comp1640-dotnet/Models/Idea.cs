@@ -36,6 +36,7 @@ namespace comp1640_dotnet.Models
 		public bool IsAnonymous { get; set; }
 		public int ViewCount { get; set; }
 		//relations
+		public Notification? Notification { get; set; }
 		public List<Reaction>? Reactions { get; set; }
 		public List<Comment>? Comments { get; set; }
 		public List<Document>? Documents { get; set; }
