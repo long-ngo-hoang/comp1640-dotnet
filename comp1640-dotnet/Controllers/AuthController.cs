@@ -1,8 +1,9 @@
 ﻿using comp1640_dotnet.Data;
 using comp1640_dotnet.DTOs.Requests;
+using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -63,6 +64,7 @@ namespace comp1640_dotnet.Controllers
 			}
 			return BadRequest("This email is already registered.");
 		}
+
 		private static byte[] PasswordSalt(HMACSHA512 hmac)
 		{
 			return hmac.Key;
@@ -74,14 +76,14 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpPost("Login")]
-		public async Task<ActionResult<User>> Login(UserLoginRequest userLoginRequest)
+		public async Task<ActionResult<AuthResponse>> Login(UserLoginRequest userLoginRequest)
 		{
 			var user = _dbContext.Users
 				.FirstOrDefault(u => u.Email == userLoginRequest.Email);
 
 			if (user == null)
 			{
-				return BadRequest("Account Not Found.");
+				return BadRequest("Account Not Found");
 			}
 			if (!VerifyPassword(userLoginRequest.Password, user.PasswordHash, user.PasswordSalt))
 			{
@@ -106,9 +108,12 @@ namespace comp1640_dotnet.Controllers
 			}
 			await _dbContext.SaveChangesAsync();
 
-			SetRefreshToken(refreshToken);
-
-			return Ok(token);
+			AuthResponse authResponse = new()
+			{
+				Token = token,
+				RefreshToken = refreshToken.Token
+			};
+			return Ok(authResponse);
 		}
 
 		private static RefreshToken GenerateRefreshToken(User user)
@@ -121,17 +126,8 @@ namespace comp1640_dotnet.Controllers
 				TokenCreated = DateTime.Now,
 				TokenExpires = DateTime.Now.AddDays(1)
 			};
-			return refreshToken;
-		}
 
-		private void SetRefreshToken(RefreshToken refreshToken)
-		{
-			var cookieOptions = new CookieOptions
-			{
-				HttpOnly = true,
-				Expires = refreshToken.TokenExpires
-			};
-			Response.Cookies.Append("rf", refreshToken.Token, cookieOptions);
+			return refreshToken;
 		}
 
 		private string CreateToken(User user)
@@ -152,12 +148,14 @@ namespace comp1640_dotnet.Controllers
 				claims.Add(new Claim("UserId", user.Id));
 				claims.Add(new Claim("UserName", user.UserName));
 				claims.Add(new Claim(ClaimTypes.Role, userRoleInDb.Role.Name));
+				claims.Add(new Claim("Roles", userRoleInDb.Role.Name));
 			}
 			else
 			{
 				claims.Add(new Claim("UserId", user.Id));
 				claims.Add(new Claim("UserName", user.UserName));
 				claims.Add(new Claim(ClaimTypes.Role, userRoleInDb.Role.Name));
+				claims.Add(new Claim("Roles", userRoleInDb.Role.Name));
 			}
 
 			var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
@@ -182,11 +180,10 @@ namespace comp1640_dotnet.Controllers
 			return computedHash.SequenceEqual(passwordHash);
 		}
 
-		[HttpPost("Refresh-Token")]
-		public async Task<ActionResult<string>> RefreshToken()
+		[HttpPost("RefreshToken")]
+		[Authorize]
+		public async Task<ActionResult<AuthResponse>> RefreshToken(string refreshToken)
 		{
-			var refreshToken = Request.Cookies["rf"];
-
 			var refreshTokenInDb = _dbContext.RefreshTokens.Include(u => u.User)
 				.FirstOrDefault(t => t.Token == refreshToken);
 
@@ -196,10 +193,11 @@ namespace comp1640_dotnet.Controllers
 			}
 			else if(refreshTokenInDb.TokenExpires < DateTime.Now)
 			{
-				return Unauthorized("Token expired");
+				return Unauthorized("Refresh Token expired");
 			}		
 
 			var user = refreshTokenInDb.User;
+
 			string token = CreateToken(user);
 			var newRefreshToken = GenerateRefreshToken(user);
 
@@ -208,9 +206,13 @@ namespace comp1640_dotnet.Controllers
 			refreshTokenInDb.TokenExpires = newRefreshToken.TokenExpires;
 			await _dbContext.SaveChangesAsync();
 
-			SetRefreshToken(newRefreshToken);
+			AuthResponse authResponse = new()
+			{
+				Token = token,
+				RefreshToken = newRefreshToken.Token
+			};
 			
-			return Ok(token);
+			return Ok(authResponse);
 		}
 	}
 }
