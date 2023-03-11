@@ -20,18 +20,21 @@ namespace comp1640_dotnet.Controllers
 		private readonly INotificationRepository _notificationRepos;
 		private readonly IUserRepository _userRepos;
 		private readonly IEmailService _emailService;
+		private readonly IS3Service _s3Service;
 
 		public IdeasController(IIdeaRepository ideaRepos,
 			IAcademicYearRepository academicYearRepos,
 			INotificationRepository notificationRepos,
 			IUserRepository userRepos,
-			IEmailService emailService)
+			IEmailService emailService,
+			IS3Service s3Service)
 		{
 			_ideaRepos = ideaRepos;
 			_academicYearRepos = academicYearRepos;
 			_notificationRepos = notificationRepos;
 			_userRepos = userRepos;
 			_emailService = emailService;
+			_s3Service = s3Service;
 		}
 
 		[HttpGet]
@@ -115,10 +118,10 @@ namespace comp1640_dotnet.Controllers
 			return Ok(result);
 		}
 
-		[HttpGet("GetS3PreSignedUrl")]
+		[HttpGet("GetPreSignedUrlToUploadDocument")]
 		public async Task<ActionResult<PreSignedUrlResponse>> GetS3PreSignedUrl()
 		{
-			var result = _ideaRepos.GetS3PreSignedUrl();
+			var result = await _s3Service.GetPreSignedUrl("documents/");
 
 			return result;
 		}

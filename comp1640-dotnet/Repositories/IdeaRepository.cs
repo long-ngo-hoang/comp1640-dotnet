@@ -1,14 +1,10 @@
-﻿using Amazon.S3.Model;
-using Amazon.S3;
-using comp1640_dotnet.Data;
+﻿using comp1640_dotnet.Data;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Amazon;
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.DTOs.Requests;
 using comp1640_dotnet.Factory;
-using comp1640_dotnet.Services.Interfaces;
 using System.Security.Claims;
 
 namespace comp1640_dotnet.Repositories
@@ -208,33 +204,6 @@ namespace comp1640_dotnet.Repositories
 			ideaResponse.Documents = _convertFactory.ConvertListDocuments(ideaInDb.Documents);
 			
 			return ideaResponse;
-		}
-
-		public PreSignedUrlResponse GetS3PreSignedUrl()
-		{
-			var amazonAccessKey = _configuration["AWS:ACCESS_KEY"];
-			var amazonSecretKey = _configuration["AWS:SECRET_KEY"];
-			var amazonBucketName = _configuration["AWS:BUCKET_NAME"];
-			string fileName = Guid.NewGuid().ToString();
-
-			IAmazonS3 client = new AmazonS3Client(amazonAccessKey, amazonSecretKey, RegionEndpoint.APSoutheast1);
-
-			GetPreSignedUrlRequest request = new()
-			{
-				BucketName = amazonBucketName,
-				Key = fileName + ".jpg",
-				Expires = DateTime.Now.AddMinutes(20),
-				Verb = HttpVerb.PUT,
-			};
-
-			string preSignedUrl = client.GetPreSignedURL(request);
-
-			PreSignedUrlResponse preSignedUrlResponse = new()
-			{
-				FileName = fileName + ".jpg",
-				PreSignedUrl = preSignedUrl,
-			};
-			return preSignedUrlResponse;
 		}
 
 		public async Task<AllIdeasResponse?> GetIdeasByUserId(int pageIndex, string? nameIdea)
