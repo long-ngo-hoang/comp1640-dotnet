@@ -41,6 +41,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<ConvertFactory>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IS3Service, S3Service>();
 
 
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());

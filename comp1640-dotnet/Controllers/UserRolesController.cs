@@ -1,12 +1,7 @@
-﻿using comp1640_dotnet.Data;
-using comp1640_dotnet.DTOs.Requests;
-using comp1640_dotnet.DTOs.Responses;
-using comp1640_dotnet.Models;
+﻿using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace comp1640_dotnet.Controllers
 {
@@ -22,10 +17,10 @@ namespace comp1640_dotnet.Controllers
 			_userRoleRepos = userRoleRepos;
 		}
 
-		[HttpGet("{id}")]
-		public async Task<ActionResult<UserRole>> GetUserRoles(string id)
+		[HttpGet("{userId}")]
+		public async Task<ActionResult<UserRole>> GetUserRoles(string userId)
 		{
-			var result = await _userRoleRepos.GetUserRole(id);
+			var result = await _userRoleRepos.GetUserRole(userId);
 
 			if (result == null)
 			{
@@ -34,10 +29,10 @@ namespace comp1640_dotnet.Controllers
 			return Ok(result);
 		}
 
-		[HttpPut("{id}")]
-		public async Task<ActionResult<UserRole>> UpdateUserRoles(string id, string roleId)
+		[HttpPut("{userId}")]
+		public async Task<ActionResult<UserRole>> UpdateUserRoles(string userId, string roleId)
 		{
-			var result = await _userRoleRepos.UpdateUserRole(id, roleId);
+			var result = await _userRoleRepos.UpdateUserRole(userId, roleId);
 
 			if(result == null)
 			{
