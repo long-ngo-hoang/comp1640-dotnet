@@ -67,7 +67,7 @@ namespace comp1640_dotnet.Controllers
 			_notificationRepos.CreateNotification(author.Id,
 				null, result.Id, "Your ideas have new comments.");
 
-		  _emailService.SendEmail(author.Email, "Your idea has a new comment.");
+		  _emailService.SendEmail(author.Email, "Your idea has a new comment.", "< a href = '' > Click </ a > ");
 
 			return Ok(result);
 		}
