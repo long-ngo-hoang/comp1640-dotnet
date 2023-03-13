@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using comp1640_dotnet.Data;
 
@@ -11,9 +12,10 @@ using comp1640_dotnet.Data;
 namespace comp1640_dotnet.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230311121648_delete-table-invitation")]
+    partial class deletetableinvitation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,6 +204,31 @@ namespace comp1640_dotnet.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Ideas");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.Invitation", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Invitations");
                 });
 
             modelBuilder.Entity("comp1640_dotnet.Models.Notification", b =>
@@ -495,6 +522,15 @@ namespace comp1640_dotnet.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Department");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("comp1640_dotnet.Models.Invitation", b =>
+                {
+                    b.HasOne("comp1640_dotnet.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });

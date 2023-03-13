@@ -15,14 +15,14 @@ namespace comp1640_dotnet.Services
 			configuration = _configuration;
 		}
 
-		public string SendEmail(string sendToEmail, string subject)
+		public string SendEmail(string sendToEmail, string subject, string content)
 		{
 			var email = new MimeMessage();
 			email.From.Add(MailboxAddress.Parse(configuration["MAILKIT:EMAIL"]));
 			email.To.Add(MailboxAddress.Parse(sendToEmail));
 
 			email.Subject = subject;
-			email.Body = new TextPart(TextFormat.Html) { Text = "<a href=''> Click </a>" };
+			email.Body = new TextPart(TextFormat.Html) { Text = content };
 
 			var smtp = new SmtpClient();
 			smtp.Connect(configuration["MAILKIT:HOST"], 587, SecureSocketOptions.StartTls);

@@ -18,6 +18,18 @@ namespace comp1640_dotnet.Repositories
 			_httpContextAccessor = httpContextAccessor;
 		}
 
+		public async Task<User?> GetUser(string userId)
+		{
+			var userInDb = await _dbContext.Users
+				.SingleOrDefaultAsync(d => d.Id == userId);
+
+			if (userInDb == null)
+			{
+				return null;
+			}
+			return userInDb;
+		}
+
 		public async Task<User?> GetAuthor(string ideaId)
 		{
 			var ideaInDb = _dbContext.Ideas
