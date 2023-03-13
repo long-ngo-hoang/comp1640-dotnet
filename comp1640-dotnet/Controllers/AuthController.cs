@@ -3,6 +3,7 @@ using comp1640_dotnet.DTOs.Requests;
 using comp1640_dotnet.DTOs.Responses;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
+using comp1640_dotnet.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,13 +20,18 @@ namespace comp1640_dotnet.Controllers
 	{
 		private readonly ApplicationDbContext? _dbContext;
 		private readonly IConfiguration _configuration;
-		private readonly IProfileRepository _profileRepository;
+		private readonly IProfileRepository _profileRepos;
+		private readonly IEmailService _emailService;
 
-		public AuthController(ApplicationDbContext? dbContext, IConfiguration configuration, IProfileRepository profileRepository)
+		public AuthController(ApplicationDbContext? dbContext, 
+			IConfiguration configuration, 
+			IProfileRepository profileRepos, 
+			IEmailService emailService)
 		{
 			_dbContext = dbContext;
 			_configuration = configuration;
-			_profileRepository = profileRepository;
+			_profileRepos = profileRepos;
+			_emailService = emailService;
 		}
 
 		[HttpPost("Register")]
@@ -55,7 +61,7 @@ namespace comp1640_dotnet.Controllers
 						RoleId = "c7b013f0-5201-4317-abd8-c878f91b1111"
 					};
 					var result1 = await _dbContext.UserRoles.AddAsync(userRole);
-					var result2 = await _profileRepository.CreateProfile(result.Entity.Id);
+					var result2 = await _profileRepos.CreateProfile(result.Entity.Id);
 					await _dbContext.SaveChangesAsync();
 
 					return Ok("Account successfully created");
@@ -63,6 +69,32 @@ namespace comp1640_dotnet.Controllers
 				return BadRequest("Can't create an account");
 			}
 			return BadRequest("This email is already registered.");
+		}
+		
+		[HttpPost("Forgot Password")]
+		public async Task<ActionResult<User>> ForgotPassword(string email)
+		{
+			var emailInDb = _dbContext.Users
+				.SingleOrDefault(u => u.Email.ToLower() == email.ToLower());
+
+			if (emailInDb != null)
+			{
+				Random rnd = new ();
+				int newPassword = rnd.Next(100000, 999999);
+
+				var hmac = new HMACSHA512();
+
+				emailInDb.PasswordSalt = PasswordSalt(hmac);
+				emailInDb.PasswordHash = PasswordHash(newPassword.ToString(), hmac);
+
+				await _dbContext.SaveChangesAsync();
+
+				_emailService.SendEmail(email, "Password recovery successful",  "Your new password is:" + newPassword);
+
+				return Ok("New password has been sent to your email address. Please use a new password.");
+			};
+
+			return BadRequest("Email not found");
 		}
 
 		private static byte[] PasswordSalt(HMACSHA512 hmac)
@@ -114,6 +146,31 @@ namespace comp1640_dotnet.Controllers
 				RefreshToken = refreshToken.Token
 			};
 			return Ok(authResponse);
+		}
+		
+		[HttpPost("Change Password")]
+		[Authorize]
+		public async Task<ActionResult> ChangePassword (ChangePasswordRequest changePasswordRequest)
+		{
+			var user = _dbContext.Users
+				.FirstOrDefault(u => u.Email == changePasswordRequest.Email);
+
+			if (user == null)
+			{
+				return BadRequest("Account Not Found");
+			}
+			if (!VerifyPassword(changePasswordRequest.Password, user.PasswordHash, user.PasswordSalt))
+			{
+				return BadRequest("Wrong Password");
+			}
+			var hmac = new HMACSHA512();
+
+			user.PasswordSalt = PasswordSalt(hmac);
+			user.PasswordHash = PasswordHash(changePasswordRequest.NewPassword, hmac);
+
+			await _dbContext.SaveChangesAsync();
+
+			return Ok("Change password successfully.");
 		}
 
 		private static RefreshToken GenerateRefreshToken(User user)
