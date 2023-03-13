@@ -91,7 +91,7 @@ namespace comp1640_dotnet.Controllers
 			_notificationRepos.CreateNotification(qACoordinator.Id, result.Id,
 						null, "The staff in the department just created a new idea.");
 
-		  _emailService.SendEmail(qACoordinator.Email, "Your employee just posted an idea");
+		  _emailService.SendEmail(qACoordinator.Email, "Your employee just posted an idea", "< a href = '' > Click </ a > ");
 
 			return Ok(result);
 		}
