@@ -22,7 +22,6 @@ namespace comp1640_dotnet.Data
 		public DbSet<RefreshToken>? RefreshTokens { get; set; }
 		public DbSet<Role>? Roles { get; set; }
 		public DbSet<UserRole>? UserRoles { get; set; }
-		public DbSet<Invitation>? Invitations { get; set; }
 		public DbSet<Notification>? Notifications { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder builder)
