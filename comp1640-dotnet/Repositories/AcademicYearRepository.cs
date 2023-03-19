@@ -53,13 +53,14 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<AcademicYearResponse?> GetAcademicYear(string idAcademicYear, int pageIndex)
 		{
-			var academicYearInDb = _dbContext.AcademicYears
+			var academicYearInDb = await _dbContext.AcademicYears
 				.Include(i => i.Ideas
 					.Skip((pageIndex - 1) * _pageSize)
 					.Take(_pageSize))
-				.SingleOrDefault(i => i.Id == idAcademicYear);
+				.ThenInclude(u => u.User)
+				.SingleOrDefaultAsync(i => i.Id == idAcademicYear);
 
-			int academicYearsCount = _dbContext.Ideas
+			int ideasInDbCount = _dbContext.Ideas
 				.Where(i => i.AcademicYearId == idAcademicYear)
 				.Count();
 
@@ -80,7 +81,7 @@ namespace comp1640_dotnet.Repositories
 				AllIdeas = new AllIdeasResponse()
 				{
 					PageIndex = pageIndex,
-					TotalPage = (int)Math.Ceiling((double)academicYearsCount / _pageSize),
+					TotalPage = (int)Math.Ceiling((double)ideasInDbCount / _pageSize),
 					Ideas = _convertFactory.ConvertListIdeas(academicYearInDb.Ideas)
 				}
 			};

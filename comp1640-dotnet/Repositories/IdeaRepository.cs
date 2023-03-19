@@ -116,9 +116,7 @@ namespace comp1640_dotnet.Repositories
 				ideasInDb = await _dbContext.Ideas
 				 .Include(u => u.User)
 				 .Include(i => i.Reactions)
-				 .Include(i => i.Comments)
-				 .ThenInclude(u => u.User)
-				 .Include(i => i.Documents).Where(i => i.Name.Contains(nameIdea))
+				 .Where(i => i.Name.Contains(nameIdea))
 				 .OrderByDescending(i => i.CreatedAt)
 				 .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
 				 .ToListAsync();
@@ -128,9 +126,6 @@ namespace comp1640_dotnet.Repositories
 				ideasInDb = await _dbContext.Ideas
 					.Include(u => u.User)
 					.Include(i => i.Reactions)
-		 			.Include(i => i.Comments)
-					.ThenInclude(u => u.User)
-					.Include(i => i.Documents)
 					.OrderByDescending(i => i.CreatedAt)
 				  .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
 					.ToListAsync();
@@ -171,9 +166,6 @@ namespace comp1640_dotnet.Repositories
 			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
 
 			var ideaInDb = await _dbContext.Ideas
-				.Include(i => i.Reactions)
-				.Include(i => i.Comments)
-				.Include(i => i.Documents)
 				.SingleOrDefaultAsync(e => e.Id == idIdea && e.UserId == userId);
 
 
@@ -182,26 +174,23 @@ namespace comp1640_dotnet.Repositories
 				return null;
 			}
 
-			IdeaResponse? ideaResponse = new();
-
 			ideaInDb.Name = idea.Name;
 			ideaInDb.Description = idea.Description;
 			ideaInDb.IsAnonymous = idea.IsAnonymous;
 			await _dbContext.SaveChangesAsync();
-
-			ideaResponse.Id = ideaInDb.Id;
-			ideaResponse.CategoryId = ideaInDb.CategoryId;
-			ideaResponse.CreatedAt = ideaInDb.CreatedAt;
-			ideaResponse.UpdatedAt = ideaInDb.UpdatedAt;
-			ideaResponse.Name = ideaInDb.Name;
-			ideaResponse.Description = ideaInDb.Description;
-			ideaResponse.IsAnonymous = ideaInDb.IsAnonymous;
-			ideaResponse.ViewCount = ideaInDb.ViewCount;
-			ideaResponse.Author = ideaInDb.Name;
-
-			ideaResponse.Reactions = _convertFactory.ConvertListReactions(ideaInDb.Reactions);
-			ideaResponse.Comments = _convertFactory.ConvertListComments(ideaInDb.Comments);
-			ideaResponse.Documents = _convertFactory.ConvertListDocuments(ideaInDb.Documents);
+			IdeaResponse? ideaResponse = new()
+			{
+				Id = ideaInDb.Id,
+				CategoryId = ideaInDb.CategoryId,
+				CreatedAt = ideaInDb.CreatedAt,
+				UpdatedAt = ideaInDb.UpdatedAt,
+				Name = ideaInDb.Name,
+				Description = ideaInDb.Description,
+				IsAnonymous = ideaInDb.IsAnonymous,
+				ViewCount = ideaInDb.ViewCount,
+				Author = ideaInDb.Name,
+			};
+			
 			
 			return ideaResponse;
 		}
@@ -217,9 +206,6 @@ namespace comp1640_dotnet.Repositories
 				ideasInDb = await _dbContext.Ideas
 				 .Include(u => u.User)
 				 .Include(i => i.Reactions)
-				 .Include(i => i.Comments)
-				 .ThenInclude(u => u.User)
-				 .Include(i => i.Documents)
 				 .Where(i => i.Name.Contains(nameIdea) && i.UserId == userId)
 				 .OrderByDescending(i => i.CreatedAt)
 				 .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
@@ -230,9 +216,6 @@ namespace comp1640_dotnet.Repositories
 				ideasInDb = await _dbContext.Ideas
 					.Include(u => u.User)
 					.Include(i => i.Reactions)
-		 			.Include(i => i.Comments)
-					.ThenInclude(u => u.User)
-					.Include(i => i.Documents)
 					.Where(i => i.UserId == userId)
 				  .OrderByDescending(i => i.CreatedAt)
 				  .Skip((pageIndex - 1) * _pageSize).Take(_pageSize)
@@ -274,9 +257,6 @@ namespace comp1640_dotnet.Repositories
 			ideasInDb = await _dbContext.Ideas
 				.Include(u => u.User)
 				.Include(i => i.Reactions)
-	 			.Include(i => i.Comments)
-				.ThenInclude(u => u.User)
-				.Include(i => i.Documents)
 				.OrderByDescending(i => i.Reactions.Count)
 				.Skip((pageIndex - 1) * _pageSize)
 				.Take(_pageSize).ToListAsync();
@@ -298,9 +278,6 @@ namespace comp1640_dotnet.Repositories
 			ideasInDb = await _dbContext.Ideas
 				.Include(u => u.User)
 				.Include(i => i.Reactions)
-	 			.Include(i => i.Comments)
-				.ThenInclude(u => u.User)
-				.Include(i => i.Documents)
 				.OrderByDescending(i => i.ViewCount)
 				.Skip((pageIndex - 1) * _pageSize)
 				.Take(_pageSize).ToListAsync();
