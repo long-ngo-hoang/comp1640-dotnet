@@ -1,4 +1,6 @@
 ﻿using comp1640_dotnet.Data;
+using comp1640_dotnet.DTOs.Responses;
+using comp1640_dotnet.Factory;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +12,15 @@ namespace comp1640_dotnet.Repositories
 	{
 		private readonly ApplicationDbContext _dbContext;
 		private readonly IHttpContextAccessor _httpContextAccessor;
+		private readonly ConvertFactory _convertFactory;
+
 
 		public UserRepository(ApplicationDbContext dbContext,
-			IHttpContextAccessor httpContextAccessor)
+			IHttpContextAccessor httpContextAccessor, ConvertFactory convertFactory)
 		{
 			_dbContext = dbContext;
 			_httpContextAccessor = httpContextAccessor;
+			_convertFactory = convertFactory;
 		}
 
 		public async Task<User?> GetUser(string userId)
@@ -68,6 +73,13 @@ namespace comp1640_dotnet.Repositories
 				}
 			}
 			return QAManager;
+		}
+
+		public async Task<List<UserResponse>> GetIdleUsers()
+		{
+			var usersInDb = _dbContext.Users.Where(u => u.DepartmentId == null).ToList();
+			var users = _convertFactory.ConvertListUsers(usersInDb);
+			return users;
 		}
 	}
 }

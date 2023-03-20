@@ -33,10 +33,7 @@ namespace comp1640_dotnet.Factory
 					Description = x.Description,
 					IsAnonymous = x.IsAnonymous,
 					ViewCount = x.ViewCount,
-					Author = x.User.UserName,
-					Reactions = ConvertListReactions(x.Reactions),
-					Comments = ConvertListComments(x.Comments),
-					Documents = ConvertListDocuments(x.Documents)
+					//Author = x.User.UserName,
 				}).ToList();
 
 			return ideas;

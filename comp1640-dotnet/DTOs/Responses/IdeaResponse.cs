@@ -16,7 +16,7 @@ namespace comp1640_dotnet.DTOs.Responses
 		public string? Description { get; set; }
 		public bool IsAnonymous { get; set; }
 		public int ViewCount { get; set; }
-		public string Author { get; set; } = string.Empty;
+		public string? Author { get; set; }
 
 		public List<ReactionResponse>? Reactions { get; set; }
 		public List<CommentResponse>? Comments { get; set; }
