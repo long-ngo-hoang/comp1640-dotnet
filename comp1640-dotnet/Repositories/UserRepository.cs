@@ -58,8 +58,6 @@ namespace comp1640_dotnet.Repositories
 				.Include(u => u.Users)
 				.SingleOrDefault(d => d.Id == departmentId);
 
-			User QAManager = null;
-
 			foreach (var item in departmentInDb.Users)
 			{
 				var QAManagerInDb = _dbContext.UserRoles
@@ -69,10 +67,12 @@ namespace comp1640_dotnet.Repositories
 
 				if (QAManagerInDb != null)
 				{
-					QAManager = QAManagerInDb.User;
+					User QAManager = QAManagerInDb.User;	
+					return QAManager;
 				}
-			}
-			return QAManager;
+			
+			}	
+			return null;
 		}
 
 		public async Task<List<UserResponse>> GetIdleUsers()

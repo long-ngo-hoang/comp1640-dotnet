@@ -51,10 +51,19 @@ namespace comp1640_dotnet.Repositories
 			return reactionResponse;
 		}
 
-		public async Task<Reaction> RemoveReaction(string idReaction)
+		public async Task<Reaction?> ReactionExistsInDb(string idIdea)
 		{
+			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+			var reactionInDb = _dbContext.Reactions.SingleOrDefault(x => x.IdeaId == idIdea && x.UserId == userId);
+			return reactionInDb;
+		}
+
+		public async Task<Reaction?> RemoveReaction(string ideaId)
+		{
+			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			var result = await _dbContext.Reactions
-							 .SingleOrDefaultAsync(e => e.Id == idReaction);
+							 .SingleOrDefaultAsync(e => e.IdeaId == ideaId && e.UserId == userId);
 
 			if (result != null)
 			{

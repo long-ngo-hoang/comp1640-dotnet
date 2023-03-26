@@ -33,7 +33,7 @@ namespace comp1640_dotnet.Factory
 					Description = x.Description,
 					IsAnonymous = x.IsAnonymous,
 					ViewCount = x.ViewCount,
-					//Author = x.User.UserName,
+					Author = x.User.UserName,
 				}).ToList();
 
 			return ideas;

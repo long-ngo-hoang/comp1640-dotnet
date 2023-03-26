@@ -71,7 +71,7 @@ namespace comp1640_dotnet.Controllers
 			return BadRequest("This email is already registered.");
 		}
 		
-		[HttpPost("Forgot Password")]
+		[HttpPost("ForgotPassword")]
 		public async Task<ActionResult<User>> ForgotPassword(string email)
 		{
 			var emailInDb = _dbContext.Users
@@ -115,8 +115,12 @@ namespace comp1640_dotnet.Controllers
 
 			if (user == null)
 			{
-				return BadRequest("Account Not Found");
+				return NotFound("Account Not Found");
 			}
+			//if(user.DepartmentId == null)
+			//{
+			//	return BadRequest("You cannot use the system because you do not belong to any department.");
+			//}
 			if (!VerifyPassword(userLoginRequest.Password, user.PasswordHash, user.PasswordSalt))
 			{
 				return BadRequest("Wrong Password");
@@ -148,7 +152,7 @@ namespace comp1640_dotnet.Controllers
 			return Ok(authResponse);
 		}
 		
-		[HttpPost("Change Password")]
+		[HttpPost("ChangePassword")]
 		[Authorize]
 		public async Task<ActionResult> ChangePassword (ChangePasswordRequest changePasswordRequest)
 		{

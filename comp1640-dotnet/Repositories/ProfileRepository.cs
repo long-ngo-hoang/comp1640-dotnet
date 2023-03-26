@@ -26,6 +26,10 @@ namespace comp1640_dotnet.Repositories
 			Profile profileToCreate = new()
 			{
 				UserId = userId,
+				AvatarUrl = "New Users",
+				FullName = "New Users",
+				Address = "New Users",
+				Phone = "New Users"
 			};
 
 			var result = await _dbContext.Profiles.AddAsync(profileToCreate);

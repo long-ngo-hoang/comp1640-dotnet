@@ -46,10 +46,11 @@ namespace comp1640_dotnet.Repositories
 			var departmentInDB = _dbContext.Departments
 				.Include(i => i.Ideas
 					.Skip((pageIndex - 1) * _pageSize)
-					.Take(_pageSize))
+					.Take(_pageSize)).ThenInclude(u => u.User)
 				.Include(u => u.Users)
 				.SingleOrDefault(i => i.Id == idDepartment);
 			
+			var ideasInDb = _dbContext.Ideas.Where(i => i.DepartmentId == idDepartment).ToList();
 			if(departmentInDB == null)
 			{
 				return null;
@@ -64,7 +65,7 @@ namespace comp1640_dotnet.Repositories
 				AllIdeas = new AllIdeasResponse()
 				{
 					PageIndex = pageIndex,
-					TotalPage = (int)Math.Ceiling((double)_dbContext.Ideas.Count() / _pageSize),
+					TotalPage = (int)Math.Ceiling((double)ideasInDb.Count() / _pageSize),
 					Ideas = _convertFactory.ConvertListIdeas(departmentInDB.Ideas)
 				},
 				AllUsers = _convertFactory.ConvertListUsers(departmentInDB.Users)

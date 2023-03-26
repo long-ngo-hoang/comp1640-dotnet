@@ -45,7 +45,7 @@ namespace comp1640_dotnet.Repositories
 				IsAnonymous = idea.IsAnonymous
 			};
 
-			var result = await _dbContext.Ideas.AddAsync(ideaToCreate);
+			var result = _dbContext.Ideas.Add(ideaToCreate);
 			await _dbContext.SaveChangesAsync();
 
 			if (result == null)
@@ -53,7 +53,7 @@ namespace comp1640_dotnet.Repositories
 				return null;
 			}
 
-			var author = _dbContext.Users.SingleOrDefault(p => p.Id == userId);
+			var author = await _dbContext.Users.SingleOrDefaultAsync(p => p.Id == userId);
 
 			IdeaResponse ideaResponse = new()
 				{
@@ -226,11 +226,12 @@ namespace comp1640_dotnet.Repositories
 			{	
 				return null;
 			}
-	
+			var countIdeas =  _dbContext.Ideas.Where(i => i.UserId == userId).ToList().Count();
+
 			AllIdeasResponse allIdeasResponse = new()
 				{
 					PageIndex = pageIndex,
-					TotalPage = (int)Math.Ceiling((double)_dbContext.Ideas.Count() / _pageSize),
+					TotalPage = (int)Math.Ceiling((double)countIdeas / _pageSize),
 					Ideas = _convertFactory.ConvertListIdeas(ideasInDb)
 				};
 				return allIdeasResponse;
