@@ -202,7 +202,7 @@ namespace comp1640_dotnet.Controllers
 
 			List<Claim> claims = new();
 
-			if (userRoleInDb.Role.Name == "Staff")
+			if (userRoleInDb.Role.Name != "Administrator")
 			{
 				claims.Add(new Claim("AcademicYearId", academicYearInDb.Id));
 				claims.Add(new Claim("DepartmentId", departmentInDb));

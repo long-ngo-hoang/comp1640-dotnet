@@ -1,4 +1,6 @@
-﻿namespace comp1640_dotnet.DTOs.Responses
+﻿using comp1640_dotnet.Models;
+
+namespace comp1640_dotnet.DTOs.Responses
 {
 	public class CategoryResponse
 	{
@@ -8,5 +10,6 @@
 		public DateTime UpdatedAt { get; set; } 
 
 		public string Name { get; set; }
+		public AllIdeasResponse? AllIdeas { get; set; }
 	}
 }

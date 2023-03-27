@@ -40,6 +40,17 @@ namespace comp1640_dotnet.Controllers
 			return Ok(result);
 		}
 
+		[HttpGet("GetDepartmentByQACoordinator")]
+		public async Task<ActionResult<DepartmentResponse>> GetDepartmentByQACoordinator()
+		{
+			var result = await _departmentRepos.GetDepartmentByQACoordinator();
+			if (result == null)
+			{
+				return BadRequest("Department not found");
+			}
+			return Ok(result);
+		}
+
 		[HttpPost]
 		public async Task<ActionResult<DepartmentResponse>> CreateDepartment(DepartmentRequest department)
 		{

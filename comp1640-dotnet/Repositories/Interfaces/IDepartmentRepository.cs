@@ -14,5 +14,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<DepartmentResponse> RemoveUserFromDepartment(string userId);
 		Task<DepartmentResponse> AddUserToDepartment(string userId, string departmentId);
 		Task<IEnumerable<DepartmentResponse>> GetStatisticalAnalysis();
+		Task<DepartmentResponse> GetDepartmentByQACoordinator();
+
 	}
 }

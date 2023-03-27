@@ -1,6 +1,7 @@
 ﻿using comp1640_dotnet.Data;
 using comp1640_dotnet.DTOs.Requests;
 using comp1640_dotnet.DTOs.Responses;
+using comp1640_dotnet.Factory;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ namespace comp1640_dotnet.Repositories
 	public class CategoryRepository : ICategoryRepository
 	{
 		private readonly ApplicationDbContext _dbContext;
+		private readonly ConvertFactory _convertFactory;
 
-		public CategoryRepository(ApplicationDbContext dbContext)
+		public CategoryRepository(ApplicationDbContext dbContext, ConvertFactory convertFactory)
 		{
 			_dbContext = dbContext;
+			_convertFactory = convertFactory;
 		}
 
 		public async Task<CategoryResponse> CreateCategory(CategoryRequest category)
@@ -38,7 +41,10 @@ namespace comp1640_dotnet.Repositories
 
 		public async Task<CategoryResponse?> GetCategory(string idCategory)
 		{
-			var categoryInDB = _dbContext.Categories.SingleOrDefault(i => i.Id == idCategory);
+			var categoryInDB = _dbContext.Categories
+				.Include(i => i.Ideas)
+				.ThenInclude(u => u.User)
+				.SingleOrDefault(i => i.Id == idCategory);
 
 			if(categoryInDB == null)
 			{
@@ -49,7 +55,11 @@ namespace comp1640_dotnet.Repositories
 				Id = categoryInDB.Id,
 				CreatedAt = categoryInDB.CreatedAt,
 				UpdatedAt = categoryInDB.UpdatedAt,
-				Name = categoryInDB.Name
+				Name = categoryInDB.Name,
+				AllIdeas = new AllIdeasResponse()
+				{
+					Ideas = _convertFactory.ConvertListIdeas(categoryInDB.Ideas)
+				}
 			};
 			return categoryResponse;
 		}

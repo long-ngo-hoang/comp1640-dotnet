@@ -5,6 +5,7 @@ using comp1640_dotnet.Factory;
 using comp1640_dotnet.Models;
 using comp1640_dotnet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace comp1640_dotnet.Repositories
 {
@@ -13,11 +14,13 @@ namespace comp1640_dotnet.Repositories
 		private readonly ApplicationDbContext _dbContext;
 		private readonly ConvertFactory _convertFactory;
 		private static readonly int _pageSize = 5;
+		private readonly IHttpContextAccessor _httpContextAccessor;
 
-		public DepartmentRepository(ApplicationDbContext dbContext, ConvertFactory convertFactory)
+		public DepartmentRepository(ApplicationDbContext dbContext, ConvertFactory convertFactory, IHttpContextAccessor httpContextAccessor)
 		{
 			_dbContext = dbContext;
 			_convertFactory = convertFactory;
+			_httpContextAccessor = httpContextAccessor;
 		}
 
 		public async Task<DepartmentResponse> CreateDepartment(DepartmentRequest department)
@@ -72,6 +75,39 @@ namespace comp1640_dotnet.Repositories
 			};
 			return departmentResponse;
 		}
+
+		public async Task<DepartmentResponse?> GetDepartmentByQACoordinator()
+		{
+			var departmentId = _httpContextAccessor.HttpContext.User.FindFirstValue("DepartmentId");
+
+			var departmentInDB = _dbContext.Departments
+				.Include(i => i.Ideas)
+				.ThenInclude(u => u.User)
+				.Include(u => u.Users)
+
+				.SingleOrDefault(i => i.Id == departmentId);
+
+			if (departmentInDB == null)
+			{
+				return null;
+			}
+
+			DepartmentResponse departmentResponse = new()
+			{
+				Id = departmentInDB.Id,
+				CreatedAt = departmentInDB.CreatedAt,
+				UpdatedAt = departmentInDB.UpdatedAt,
+				Name = departmentInDB.Name,
+				AllIdeas = new AllIdeasResponse()
+				{
+					Ideas = _convertFactory.ConvertListIdeas(departmentInDB.Ideas)
+				},
+				AllUsers = _convertFactory.ConvertListUsers(departmentInDB.Users)
+
+			};
+			return departmentResponse;
+		}
+
 
 		public async Task<IEnumerable<Department>> GetDepartments()
 		{
