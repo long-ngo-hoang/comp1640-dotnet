@@ -30,9 +30,9 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<DepartmentResponse>> GetDepartment(string id, int pageIndex = 1 )
+		public async Task<ActionResult<DepartmentResponse>> GetDepartment(string id)
 		{
-			var result = await _departmentRepos.GetDepartment(id, pageIndex);
+			var result = await _departmentRepos.GetDepartment(id);
 			if(result == null)
 			{
 				return BadRequest("Department not found");

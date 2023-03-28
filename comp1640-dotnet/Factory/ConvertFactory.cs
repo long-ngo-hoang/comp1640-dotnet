@@ -34,8 +34,8 @@ namespace comp1640_dotnet.Factory
 					IsAnonymous = x.IsAnonymous,
 					ViewCount = x.ViewCount,
 					Author = x.User.UserName,
+					Reactions = ConvertListReactions(x.Reactions)
 				}).ToList();
-
 			return ideas;
 		}
 

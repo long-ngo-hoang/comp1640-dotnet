@@ -20,7 +20,7 @@ namespace comp1640_dotnet.Repositories
 			_httpContextAccessor = httpContextAccessor;
 		}
 
-		public async Task<ReactionResponse?> CreateReaction(ReactionRequest reaction)
+		public async Task<ReactionResponse?> UpdateReaction(ReactionRequest reaction)
 		{
 			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
 
@@ -31,46 +31,49 @@ namespace comp1640_dotnet.Repositories
 				Name = reaction.Name
 			};
 
-			var result = await _dbContext.Reactions.AddAsync(reactionToCreate);
-			await _dbContext.SaveChangesAsync();
+			var reactionInDb = _dbContext.Reactions.SingleOrDefault(i => i.IdeaId == reaction.IdeaId && i.UserId == userId);
 
-			if(result == null)
+			if (reactionInDb != null)
 			{
-				return null;
-			}
-
-			ReactionResponse reactionResponse = new()
-			{
-				Id = result.Entity.Id,
-				IdeaId = result.Entity.IdeaId,
-				CreatedAt = result.Entity.CreatedAt,
-				UpdatedAt = result.Entity.UpdatedAt,
-				Name = result.Entity.Name,
-				Author = result.Entity.Name
-			};
-			return reactionResponse;
-		}
-
-		public async Task<Reaction?> ReactionExistsInDb(string idIdea)
-		{
-			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
-			var reactionInDb = _dbContext.Reactions.SingleOrDefault(x => x.IdeaId == idIdea && x.UserId == userId);
-			return reactionInDb;
-		}
-
-		public async Task<Reaction?> RemoveReaction(string ideaId)
-		{
-			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
-
-			var result = await _dbContext.Reactions
-							 .SingleOrDefaultAsync(e => e.IdeaId == ideaId && e.UserId == userId);
-
-			if (result != null)
-			{
-				_dbContext.Reactions.Remove(result);
+				if(reactionInDb.Name == reactionToCreate.Name)
+				{
+					_dbContext.Reactions.Remove(reactionInDb);
+				}
+				else
+				{
+					reactionInDb.Name = reactionToCreate.Name;
+				}
 				await _dbContext.SaveChangesAsync();
+				ReactionResponse updateReaction = new()
+				{
+					Id = reactionInDb.Id,
+					IdeaId = reactionInDb.IdeaId,
+					CreatedAt = reactionInDb.CreatedAt,
+					UpdatedAt = reactionInDb.UpdatedAt,
+					Name = reactionInDb.Name,
+					Author = reactionInDb.Name
+				};
+				return updateReaction;
 			}
-			return result;
+				var result = await _dbContext.Reactions.AddAsync(reactionToCreate);
+				await _dbContext.SaveChangesAsync();
+				
+				if (result == null)
+				{
+					return null;
+				}
+				
+				ReactionResponse reactionResponse = new()
+					{
+						Id = result.Entity.Id,
+						IdeaId = result.Entity.IdeaId,
+						CreatedAt = result.Entity.CreatedAt,
+						UpdatedAt = result.Entity.UpdatedAt,
+						Name = result.Entity.Name,
+						Author = result.Entity.Name
+					};
+				return reactionResponse;
+			
 		}
 	}
 }

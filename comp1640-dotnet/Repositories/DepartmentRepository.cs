@@ -44,16 +44,14 @@ namespace comp1640_dotnet.Repositories
 			return departmentResponse;
 		}
 
-		public async Task<DepartmentResponse?> GetDepartment(string idDepartment, int pageIndex)
+		public async Task<DepartmentResponse?> GetDepartment(string idDepartment)
 		{
 			var departmentInDB = _dbContext.Departments
-				.Include(i => i.Ideas
-					.Skip((pageIndex - 1) * _pageSize)
-					.Take(_pageSize)).ThenInclude(u => u.User)
+				.Include(i => i.Ideas)
+				.ThenInclude(u => u.User)
 				.Include(u => u.Users)
 				.SingleOrDefault(i => i.Id == idDepartment);
 			
-			var ideasInDb = _dbContext.Ideas.Where(i => i.DepartmentId == idDepartment).ToList();
 			if(departmentInDB == null)
 			{
 				return null;
@@ -67,8 +65,6 @@ namespace comp1640_dotnet.Repositories
 				Name = departmentInDB.Name,
 				AllIdeas = new AllIdeasResponse()
 				{
-					PageIndex = pageIndex,
-					TotalPage = (int)Math.Ceiling((double)ideasInDb.Count() / _pageSize),
 					Ideas = _convertFactory.ConvertListIdeas(departmentInDB.Ideas)
 				},
 				AllUsers = _convertFactory.ConvertListUsers(departmentInDB.Users)
@@ -218,6 +214,7 @@ namespace comp1640_dotnet.Repositories
 				Id = x.Id,
 				CreatedAt = x.CreatedAt,
 				UpdatedAt = x.UpdatedAt,
+				Name = x.Name,
 				TotalIdeas = x.Ideas.Count(),
 			}).ToList();
 

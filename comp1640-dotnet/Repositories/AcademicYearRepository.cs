@@ -51,18 +51,12 @@ namespace comp1640_dotnet.Repositories
 			return academicYearResponse;
 		}
 
-		public async Task<AcademicYearResponse?> GetAcademicYear(string idAcademicYear, int pageIndex)
+		public async Task<AcademicYearResponse?> GetAcademicYear(string idAcademicYear)
 		{
 			var academicYearInDb = await _dbContext.AcademicYears
-				.Include(i => i.Ideas
-					.Skip((pageIndex - 1) * _pageSize)
-					.Take(_pageSize))
+				.Include(i => i.Ideas)
 				.ThenInclude(u => u.User)
 				.SingleOrDefaultAsync(i => i.Id == idAcademicYear);
-
-			int ideasInDbCount = _dbContext.Ideas
-				.Where(i => i.AcademicYearId == idAcademicYear)
-				.Count();
 
 			if(academicYearInDb == null)
 			{
@@ -80,8 +74,6 @@ namespace comp1640_dotnet.Repositories
 				FinalClosureDate = academicYearInDb.FinalClosureDate,
 				AllIdeas = new AllIdeasResponse()
 				{
-					PageIndex = pageIndex,
-					TotalPage = (int)Math.Ceiling((double)ideasInDbCount / _pageSize),
 					Ideas = _convertFactory.ConvertListIdeas(academicYearInDb.Ideas)
 				}
 			};

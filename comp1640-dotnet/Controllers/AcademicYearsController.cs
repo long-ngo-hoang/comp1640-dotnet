@@ -12,7 +12,7 @@ namespace comp1640_dotnet.Controllers
 {
 	[Route("[controller]")]
 	[ApiController]
-	[Authorize(Roles = "Administrator")]
+	[Authorize]
 	public class AcademicYearsController : ControllerBase
 	{
 		private readonly IAcademicYearRepository academicYearRepos;
@@ -30,9 +30,9 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<AcademicYearResponse>> GetAcademicYear(string id, int pageIndex = 1)
+		public async Task<ActionResult<AcademicYearResponse>> GetAcademicYear(string id)
 		{
-			var result = await academicYearRepos.GetAcademicYear(id, pageIndex);
+			var result = await academicYearRepos.GetAcademicYear(id);
 			if(result == null)
 			{
 				return BadRequest("Academic Year not found");

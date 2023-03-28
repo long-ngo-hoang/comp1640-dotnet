@@ -22,36 +22,24 @@ namespace comp1640_dotnet.Controllers
 			_ideaRepos = ideaRepos;
 		}
 
-		[HttpPost]
-		public async Task<ActionResult<ReactionResponse>> CreateReaction(ReactionRequest reaction)
+		[HttpPut]
+		public async Task<ActionResult<ReactionResponse>> UpdateReaction(ReactionRequest reaction)
 		{
 			var ideaInDb = _ideaRepos.IdeaExistsInDb(reaction.IdeaId);
-			var reactionInDb = _reactionRepos.ReactionExistsInDb(reaction.IdeaId);
-			if(reactionInDb.Result != null)
-			{
-				return BadRequest("Reaction Exists In Db");
-			}
+
 			if(ideaInDb == null)
 			{
 				return BadRequest("Idea not found");
 			}
-			var result = await _reactionRepos.CreateReaction(reaction);
+
+			var result = await _reactionRepos.UpdateReaction(reaction);
+
 			if(result != null)
 			{
 				return Ok(result);
 			}
-			return BadRequest("Can't create response now.");
-		}
 
-		[HttpDelete("{ideaId}")]
-		public async Task<ActionResult<Reaction>> RemoveReaction(string ideaId)
-		{
-			var result = await _reactionRepos.RemoveReaction(ideaId);
-			if(result == null)
-			{
-				return BadRequest("Reaction not found");
-			}
-			return Ok("Delete successful reaction");
+			return BadRequest("Can't create reaction now.");
 		}
 	}
 }
