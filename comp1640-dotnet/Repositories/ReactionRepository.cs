@@ -24,24 +24,17 @@ namespace comp1640_dotnet.Repositories
 		{
 			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
 
-			Reaction reactionToCreate = new()
-			{
-				IdeaId = reaction.IdeaId,
-				UserId = userId,
-				Name = reaction.Name
-			};
-
 			var reactionInDb = _dbContext.Reactions.SingleOrDefault(i => i.IdeaId == reaction.IdeaId && i.UserId == userId);
 
 			if (reactionInDb != null)
 			{
-				if(reactionInDb.Name == reactionToCreate.Name)
+				if(reactionInDb.Name == reaction.Name)
 				{
 					_dbContext.Reactions.Remove(reactionInDb);
 				}
 				else
 				{
-					reactionInDb.Name = reactionToCreate.Name;
+					reactionInDb.Name = reaction.Name;
 				}
 				await _dbContext.SaveChangesAsync();
 				ReactionResponse updateReaction = new()
@@ -55,7 +48,13 @@ namespace comp1640_dotnet.Repositories
 				};
 				return updateReaction;
 			}
-				var result = await _dbContext.Reactions.AddAsync(reactionToCreate);
+			Reaction reactionToCreate = new()
+				{
+					IdeaId = reaction.IdeaId,
+					UserId = userId,
+					Name = reaction.Name
+				};
+			var result = await _dbContext.Reactions.AddAsync(reactionToCreate);
 				await _dbContext.SaveChangesAsync();
 				
 				if (result == null)

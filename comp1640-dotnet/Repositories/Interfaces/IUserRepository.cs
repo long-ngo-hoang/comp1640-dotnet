@@ -9,7 +9,7 @@ namespace comp1640_dotnet.Repositories.Interfaces
 		Task<User> GetQACoordinator();	
 		Task<User> GetAuthor(string ideaId);	
 		Task<User> GetUser(string userId);
-		Task<List<UserResponse>> GetIdleUsers();
+		Task<List<UserResponse>> GetUsers();
 
 	}
 }

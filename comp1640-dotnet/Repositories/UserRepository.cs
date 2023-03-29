@@ -75,9 +75,9 @@ namespace comp1640_dotnet.Repositories
 			return null;
 		}
 
-		public async Task<List<UserResponse>> GetIdleUsers()
+		public async Task<List<UserResponse>> GetUsers()
 		{
-			var usersInDb = _dbContext.Users.Where(u => u.DepartmentId == null).ToList();
+			var usersInDb = _dbContext.Users.ToList();
 			var users = _convertFactory.ConvertListUsers(usersInDb);
 			return users;
 		}

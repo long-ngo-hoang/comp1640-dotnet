@@ -22,16 +22,20 @@ namespace comp1640_dotnet.Controllers
 		private readonly IConfiguration _configuration;
 		private readonly IProfileRepository _profileRepos;
 		private readonly IEmailService _emailService;
+		private readonly IHttpContextAccessor _httpContextAccessor;
+
 
 		public AuthController(ApplicationDbContext? dbContext, 
 			IConfiguration configuration, 
 			IProfileRepository profileRepos, 
-			IEmailService emailService)
+			IEmailService emailService,
+			IHttpContextAccessor httpContextAccessor)
 		{
 			_dbContext = dbContext;
 			_configuration = configuration;
 			_profileRepos = profileRepos;
 			_emailService = emailService;
+			_httpContextAccessor = httpContextAccessor;
 		}
 
 		[HttpPost("Register")]
@@ -117,10 +121,6 @@ namespace comp1640_dotnet.Controllers
 			{
 				return NotFound("Account Not Found");
 			}
-			//if(user.DepartmentId == null)
-			//{
-			//	return BadRequest("You cannot use the system because you do not belong to any department.");
-			//}
 			if (!VerifyPassword(userLoginRequest.Password, user.PasswordHash, user.PasswordSalt))
 			{
 				return BadRequest("Wrong Password");
@@ -156,8 +156,10 @@ namespace comp1640_dotnet.Controllers
 		[Authorize]
 		public async Task<ActionResult> ChangePassword (ChangePasswordRequest changePasswordRequest)
 		{
+			var userId = _httpContextAccessor.HttpContext.User.FindFirstValue("UserId");
+
 			var user = _dbContext.Users
-				.FirstOrDefault(u => u.Email == changePasswordRequest.Email);
+				.FirstOrDefault(u => u.Id == userId);
 
 			if (user == null)
 			{
@@ -202,7 +204,7 @@ namespace comp1640_dotnet.Controllers
 
 			List<Claim> claims = new();
 
-			if (userRoleInDb.Role.Name != "Administrator")
+			if (userRoleInDb.Role.Name == "Staff" || userRoleInDb.Role.Name == "Quality Assurance Coordinator")
 			{
 				claims.Add(new Claim("AcademicYearId", academicYearInDb.Id));
 				claims.Add(new Claim("DepartmentId", departmentInDb));

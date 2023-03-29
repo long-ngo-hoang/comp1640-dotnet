@@ -20,9 +20,9 @@ namespace comp1640_dotnet.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<List<UserResponse>>> GetIdleUsers()
+		public async Task<ActionResult<List<UserResponse>>> GetUsers()
 		{
-			var result = await _userRepos.GetIdleUsers();
+			var result = await _userRepos.GetUsers();
 
 			if(result == null)
 			{
